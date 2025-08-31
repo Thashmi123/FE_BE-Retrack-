@@ -1,0 +1,15 @@
+# Node.js
+FE/node_modules/
+FE/build/
+
+# Go build
+**/bin/
+**/vendor/
+**/*.exe
+
+# Common stuff
+*.env
+*.log
+*.DS_Store
+.vscode/
+.idea/

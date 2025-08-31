@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: TaskMgt
+  labels:
+    app: TaskMgt
+spec:
+  selector:
+    matchLabels:
+      app: TaskMgt
+  replicas:  1
+  template:
+    metadata:
+      labels:
+        app: TaskMgt
+    spec:
+      containers:
+       - name: TaskMgt
+         image: evolza/TaskMgt:latest
+         imagePullPolicy: Always
+         ports:
+          - containerPort: 8080
+            name: rest
+      imagePullSecrets:
+          - name: notavailable

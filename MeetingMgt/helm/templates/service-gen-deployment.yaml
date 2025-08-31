@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: MeetingMgt
+  labels:
+    app: MeetingMgt
+spec:
+  selector:
+    matchLabels:
+      app: MeetingMgt
+  replicas:  1
+  template:
+    metadata:
+      labels:
+        app: MeetingMgt
+    spec:
+      containers:
+       - name: MeetingMgt
+         image: evolza/MeetingMgt:latest
+         imagePullPolicy: Always
+         ports:
+          - containerPort: 8080
+            name: rest
+      imagePullSecrets:
+          - name: notavailable

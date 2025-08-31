@@ -1,0 +1,11 @@
+Title,Description,DueDate,Priority,Status,Deleted
+Complete Project Documentation,Finalize all project documentation and user guides,2025-09-15,High,Pending,false
+Code Review Session,Review pull requests and provide feedback,2025-08-25,Medium,In Progress,false
+Database Optimization,Optimize database queries for better performance,2025-09-10,High,Pending,false
+Unit Testing,Write comprehensive unit tests for new features,2025-08-30,Medium,Pending,false
+Security Audit,Conduct security audit and fix vulnerabilities,2025-09-20,Critical,Pending,false
+UI/UX Updates,Update user interface based on user feedback,2025-09-05,Low,Completed,false
+Deploy to Production,Deploy the application to production environment,2025-09-25,Critical,Pending,false
+Performance Testing,Conduct load testing and performance optimization,2025-09-12,High,In Progress,false
+Bug Fixes,Fix reported bugs from QA testing,2025-08-28,Medium,In Progress,false
+Training Documentation,Create training materials for end users,2025-09-18,Low,Pending,false
