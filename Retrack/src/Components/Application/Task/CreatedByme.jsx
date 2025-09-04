@@ -49,6 +49,15 @@ const CreatedByme = () => {
                                                 <td>
                                                     <H6 attrH6={{ className: 'task_title_0' }} >{tasklistdata.title}</H6>
                                                     <P attrPara={{ className: 'project_name_0' }} >{tasklistdata.priority}</P>
+                                                    {tasklistdata.tags && tasklistdata.tags.length > 0 && (
+                                                        <div className="mt-1">
+                                                            {tasklistdata.tags.map((tag, index) => (
+                                                                <span key={index} className="badge badge-light me-1">
+                                                                    {tag}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                 </td>
                                                 <td>
                                                     <P attrPara={{ className: 'task_desc_0' }} >{tasklistdata.description}</P>

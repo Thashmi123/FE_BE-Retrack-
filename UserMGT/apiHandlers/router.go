@@ -25,8 +25,10 @@ func Router(app *fiber.App) {
 			fiber.MethodPut,
 			fiber.MethodDelete,
 			fiber.MethodPatch,
+			fiber.MethodOptions,
 		}, ","),
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization, X-Requested-With",
+		AllowCredentials: false,
 	}))
 	app.Static("/", "./docs/rapiDoc/build")
 	DefaultMappings(defaultGroup)

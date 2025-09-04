@@ -119,7 +119,9 @@ const UserHeader = () => {
     localStorage.removeItem("Name");
     localStorage.setItem("authenticated", false);
     logout(); // Call logout from UserContext
-    history(`${process.env.PUBLIC_URL}/login`);
+    
+    // Replace history to prevent back navigation
+    history(`${process.env.PUBLIC_URL}/login`, { replace: true });
   };
 
   const UserMenuRedirect = (redirect) => {

@@ -1,6 +1,6 @@
 # Node.js
-FE/node_modules/
-FE/build/
+/node_modules/
+/build/
 
 # Go build
 **/bin/

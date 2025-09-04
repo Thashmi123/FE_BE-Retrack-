@@ -37,7 +37,13 @@ const NewTaskClass = () => {
   const addToggle = () => setaddModal(!addModal);
 
   const Addtask = (data) => {
-    AddNewTask(data);
+    // Handle tags properly - convert to array if needed
+    const taskData = {
+      ...data,
+      tags: Array.isArray(data.tags) ? data.tags : data.tags ? [data.tags] : []
+    };
+    
+    AddNewTask(taskData);
     reset(); // Optional: reset form after submit
     setaddModal(false);
   };
@@ -166,6 +172,23 @@ const NewTaskClass = () => {
                     Assigned to name is required
                   </span>
                 )}
+              </FormGroup>
+              
+              <FormGroup className="col-md-12">
+                <Label>Tags</Label>
+                <Controller
+                  name="tags"
+                  control={control}
+                  render={({ field }) => (
+                    <select multiple className="form-control" {...field}>
+                      <option value="Notification">Notification</option>
+                      <option value="Newsletter">Newsletter</option>
+                      <option value="Business">Business</option>
+                      <option value="Holidays">Holidays</option>
+                    </select>
+                  )}
+                />
+                <small className="form-text text-muted">Hold Ctrl/Cmd to select multiple tags</small>
               </FormGroup>
             </div>
 

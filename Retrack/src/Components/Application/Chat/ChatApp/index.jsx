@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { Breadcrumbs } from '../../../../AbstractElements';
 import ChatStatus from './ChatStatus';
 import Chatting from './Chatting';
+import ChatDebugPanel from './ChatDebugPanel';
 import { Card, CardBody, Col, Container, Row } from 'reactstrap';
 
 const ChatAppContain = () => {
@@ -9,6 +10,13 @@ const ChatAppContain = () => {
     <Fragment>
       <Breadcrumbs mainTitle='Chat App' parent='Chat' title='Chat App' />
       <Container fluid={true}>
+        {/* Debug Panel - Remove in production */}
+        <Row className="mb-3">
+          <Col>
+            <ChatDebugPanel />
+          </Col>
+        </Row>
+        
         <Row>
           <Col className='call-chat-sidebar'>
             <Card>

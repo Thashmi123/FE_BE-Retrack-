@@ -44,6 +44,12 @@ export const MENUITEMS = [
         title: "Task",
       },
       {
+        path: `components/application/kanbanboard`,
+        icon: "editors",
+        type: "link",
+        title: "Scrumboard",
+      },
+      {
         title: "Calendar",
         icon: "calendar",
         type: "link",
@@ -57,24 +63,24 @@ export const MENUITEMS = [
       },
       {
         title: "Account Settings",
-        icon: "settings",
+        icon: "support-tickets",
         type: "link",
         path: "/components/application/users/account-settings",
       },
 
-      {
-        title: "Support Ticket",
-        icon: "support-tickets",
-        type: "sub",
-        children: [
-          {
-            active: false,
-            path: `http://support.pixelstrap.com/help-center`,
-            title: "Help Center",
-            type: "link",
-          },
-        ],
-      },
+      // {
+      //   title: "Support Ticket",
+      //   icon: "support-tickets",
+      //   type: "sub",
+      // children: [
+      //   {
+      //     active: false,
+      //     path: `http://support.pixelstrap.com/help-center`,
+      //     title: "Help Center",
+      //     type: "link",
+      //   },
+      // ],
+      // },
     ],
   },
 ];

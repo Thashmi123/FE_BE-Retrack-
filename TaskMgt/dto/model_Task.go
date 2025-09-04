@@ -13,6 +13,7 @@ type Task struct {
 	AssignedToName  string    `json:"assigned_to_name" validate:"required"`
 	AssignedByEmail string    `json:"assigned_by_email" validate:"required,email"`
 	AssignedByName  string    `json:"assigned_by_name" validate:"required"`
+	Tags            []string  `json:"tags"`
 	Deleted         bool      `json:"deleted"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`

@@ -11,6 +11,7 @@ import MyCourse from "./MyCourse";
 import TodayProgress from "./TodayProgress";
 import UpcomingEvents from "./UpcomingEvents";
 import UpcomingSchedule from "./UpcomingSchedule";
+import TaskKanbanWidget from "./TaskKanbanWidget";
 
 const OnlineCourse = () => {
     return (
@@ -49,6 +50,9 @@ const OnlineCourse = () => {
                     </Col>
                     <Col xxl="3" md="5" sm="6" className="col-ed-6 box-col-5">
                         <ActiveLessons />
+                    </Col>
+                    <Col xxl="4" md="6" className="col-ed-6 box-col-6">
+                        <TaskKanbanWidget />
                     </Col>
                 </Row>
             </Container>

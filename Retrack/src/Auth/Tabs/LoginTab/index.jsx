@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from "react";
+import React, { Fragment, useState, useContext, useEffect } from "react";
 import { Form, FormGroup, Input, Label } from "reactstrap";
 import { Btn, H4, P } from "../../../AbstractElements";
 import { Link } from "react-router-dom";
@@ -14,6 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import man from "../../../assets/images/dashboard/profile.png";
 import AuthService from "../../../Services/auth.service";
+import { useUser } from "../../../contexts/UserContext";
 
 import CustomizerContext from "../../../_helper/Customizer";
 import "./LoginTab.css";
@@ -21,11 +22,42 @@ import "./LoginTab.css";
 const LoginTab = ({ selected }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [togglePassword, setTogglePassword] = useState(false);
   const history = useNavigate();
   const { layoutURL } = useContext(CustomizerContext);
+  const { login } = useUser();
+
+  useEffect(() => {
+    // Load saved credentials if "Remember me" was previously selected
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedRememberMe = localStorage.getItem("rememberMe") === "true";
+    
+    if (savedRememberMe && savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
+  // Prevent back navigation after logout
+  useEffect(() => {
+    const handlePopState = () => {
+      // If user is not logged in and tries to go back, redirect to login
+      if (!localStorage.getItem("token")) {
+        window.history.pushState(null, null, window.location.href);
+      }
+    };
+
+    window.history.pushState(null, null, window.location.href);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
 
   const handleGoogleLogin = () => {
     // Google OAuth implementation
@@ -50,11 +82,24 @@ const LoginTab = ({ selected }) => {
 
     setLoading(true);
     setError("");
+    setSuccess("");
 
     try {
-      // Use the new AuthService to login with UserMGT backend
-      const response = await AuthService.login(email, password);
+      // Use the login function from UserContext
+      const response = await login(email, password);
       console.log("Login successful, user:", response.user);
+
+      // Handle "Remember me" functionality
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+        localStorage.setItem("rememberMe", "true");
+      } else {
+        localStorage.removeItem("rememberedEmail");
+        localStorage.removeItem("rememberMe");
+      }
+
+      // Show success message
+      setSuccess("Login successful! Redirecting to dashboard...");
 
       // Get layout URL with fallback
       const currentLayout = layoutURL || "compact-wrapper";
@@ -64,10 +109,20 @@ const LoginTab = ({ selected }) => {
       console.log("layoutURL value:", layoutURL);
       console.log("currentLayout:", currentLayout);
 
-      history(redirectPath);
+      // Redirect to dashboard after a short delay to show success message
+      setTimeout(() => {
+        history(redirectPath);
+      }, 1500);
     } catch (err) {
       console.error("Login error:", err);
-      setError(err.message || "Invalid email or password");
+      // Provide more specific error messages
+      if (err.message) {
+        setError(err.message);
+      } else if (err.error) {
+        setError(err.error);
+      } else {
+        setError("Login failed. Please check your credentials and try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -94,6 +149,11 @@ const LoginTab = ({ selected }) => {
             {error && (
               <div className="alert alert-danger mt-2">
                 {error}
+              </div>
+            )}
+            {success && (
+              <div className="alert alert-success mt-2">
+                {success}
               </div>
             )}
           </div>
@@ -163,7 +223,7 @@ const LoginTab = ({ selected }) => {
                 required
                 placeholder="your@example.com"
                 onChange={(e) => setEmail(e.target.value)}
-                defaultValue={"test@gmail.com"}
+                value={email}
               />
             </FormGroup>
 
@@ -180,7 +240,7 @@ const LoginTab = ({ selected }) => {
                   autoCapitalize="off"
                   spellCheck="false"
                   onChange={(e) => setPassword(e.target.value)}
-                  defaultValue={"test123"}
+                  value={password}
                   required
                 />
                 <div
@@ -201,6 +261,8 @@ const LoginTab = ({ selected }) => {
                   id="remember-me"
                   type="checkbox"
                   className="retrack-checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                 />
                 <Label className="retrack-checkbox-label" for="remember-me">
                   Remember me

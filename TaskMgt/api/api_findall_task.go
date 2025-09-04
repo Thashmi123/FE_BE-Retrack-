@@ -1,40 +1,116 @@
+// package api
+
+// import (
+// 	"TaskMgt/utils"
+// 	"github.com/gofiber/fiber/v2"
+
+// 	"TaskMgt/dao"
+// )
+
+// // @Summary      FindallTask
+// // @Description   This API performs the GET operation on Task. It allows you to retrieve Task records.
+// // @Tags          Task
+// // @Accept       json
+// // @Produce      json
+// // @Param        objectId query []string false "string collection"  collectionFormat(multi)
+// // @Param        createdBy query string false "Filter by creator email"
+// // @Param        assignedTo query string false "Filter by assignee email"
+// // @Param        status query string false "Filter by status"
+// // @Param        priority query string false "Filter by priority"
+// // @Param        dueDateFrom query string false "Filter by due date from (RFC3339 format)"
+// // @Param        dueDateTo query string false "Filter by due date to (RFC3339 format)"
+// // @Param        createdDateFrom query string false "Filter by created date from (RFC3339 format)"
+// // @Param        createdDateTo query string false "Filter by created date to (RFC3339 format)"
+// // @Param        tag query string false "Filter by tag"
+// // @Success      200  {array}   dto.Task "Status OK"
+// // @Success      202  {array}   dto.Task "Status Accepted"
+// // @Failure      404 "Not Found"
+// // @Router      /FindallTask [GET]
+
+// func FindallTaskApi(c *fiber.Ctx) error {
+
+// 	page := c.Query("page", "1")
+// 	size := c.Query("size", "10")
+// 	searchTerm := c.Query("searchTerm", "")
+// 	createdBy := c.Query("createdBy", "")
+// 	assignedTo := c.Query("assignedTo", "")
+// 	status := c.Query("status", "")
+// 	priority := c.Query("priority", "")
+// 	dueDateFrom := c.Query("dueDateFrom", "")
+// 	dueDateTo := c.Query("dueDateTo", "")
+// 	createdDateFrom := c.Query("createdDateFrom", "")
+// 	createdDateTo := c.Query("createdDateTo", "")
+// 	tag := c.Query("tag", "")
+// 	noPaginationStr := c.Query("noPagination", "")
+// 	noPagination := noPaginationStr == "true"
+
+// 	Count, Task, err := dao.DB_FindallTask(page, size, searchTerm, createdBy, assignedTo, status, priority, dueDateFrom, dueDateTo, createdDateFrom, createdDateTo, tag, noPagination)
+// 	if err != nil {
+// 		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+// 	}
+
+// 	returnValue := map[string]interface{}{
+// 		"Count": Count,
+// 		"Task":  Task,
+// 	}
+
+// 	return c.Status(fiber.StatusAccepted).JSON(&returnValue)
+// }
+
 package api
 
 import (
-	"TaskMgt/utils"
-	"github.com/gofiber/fiber/v2"
-
-	"TaskMgt/dao"
+    "TaskMgt/utils"
+    "github.com/gofiber/fiber/v2"
+    "TaskMgt/dao"
 )
 
 // @Summary      FindallTask
-// @Description   This API performs the GET operation on Task. It allows you to retrieve Task records.
-// @Tags          Task
+// @Description This API performs the GET operation on Task. It allows you to retrieve Task records.
+// @Tags         Task
 // @Accept       json
 // @Produce      json
 // @Param        objectId query []string false "string collection"  collectionFormat(multi)
+// @Param        createdBy query string false "Filter by creator email"
+// @Param        assignedTo query string false "Filter by assignee email"
+// @Param        status query string false "Filter by status"
+// @Param        priority query string false "Filter by priority"
+// @Param        dueDateFrom query string false "Filter by due date from (RFC3339 format)"
+// @Param        dueDateTo query string false "Filter by due date to (RFC3339 format)"
+// @Param        createdDateFrom query string false "Filter by created date from (RFC3339 format)"
+// @Param        createdDateTo query string false "Filter by created date to (RFC3339 format)"
+// @Param        tag query string false "Filter by tag"
 // @Success      200  {array}   dto.Task "Status OK"
 // @Success      202  {array}   dto.Task "Status Accepted"
 // @Failure      404 "Not Found"
-// @Router      /FindallTask [GET]
+// @Router       /FindallTask [GET]
 
 func FindallTaskApi(c *fiber.Ctx) error {
+    page := c.Query("page", "1")
+    size := c.Query("size", "10")
+    searchTerm := c.Query("searchTerm", "")
+    createdBy := c.Query("createdBy", "")
+    assignedTo := c.Query("assignedTo", "")
+    status := c.Query("status", "")
+    priority := c.Query("priority", "")
+    dueDateFrom := c.Query("dueDateFrom", "")
+    dueDateTo := c.Query("dueDateTo", "")
+    createdDateFrom := c.Query("createdDateFrom", "")
+    createdDateTo := c.Query("createdDateTo", "")
+    tag := c.Query("tag", "")
+    noPaginationStr := c.Query("noPagination", "")
+    noPagination := noPaginationStr == "true"
 
-	page := c.Query("page", "1")
-	size := c.Query("size", "10")
-	searchTerm := c.Query("searchTerm", "")
-	noPaginationStr := c.Query("noPagination", "")
-	noPagination := noPaginationStr == "true"
+    Count, Task, err := dao.DB_FindallTask(page, size, searchTerm, createdBy, assignedTo, status, priority, dueDateFrom, dueDateTo, createdDateFrom, createdDateTo, tag, noPagination)
+    if err != nil {
+        return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+    }
 
-	Count, Task, err := dao.DB_FindallTask(page, size, searchTerm, noPagination)
-	if err != nil {
-		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
-	}
+    returnValue := map[string]interface{}{
+        "Count": Count,
+        "Task":  Task,
+    }
 
-	returnValue := map[string]interface{}{
-		"Count": Count,
-		"Task":  Task,
-	}
-
-	return c.Status(fiber.StatusAccepted).JSON(&returnValue)
+    return c.Status(fiber.StatusAccepted).JSON(&returnValue)
 }
+

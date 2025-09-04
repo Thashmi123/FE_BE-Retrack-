@@ -1,17 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import Context from './index';
-import axios from 'axios';
-import { TaskApi } from '../../api';
+import TaskService from '../../Services/task.service';
 
 const TaskProvider = (props) => {
     const [allTask, setAllTask] = useState([]);
     const [newTask, setNewTask] = useState([]);
 
-    const getTask = async () => {
+    const getTask = async (filters = {}) => {
         try {
-            const response = await axios.get(`${TaskApi}/FindallTask`);
+            // Use TaskService with proper query parameters
+            const defaultFilters = {
+                page: '1',
+                size: '10',
+                searchTerm: '',
+                createdBy: '',
+                assignedTo: '',
+                status: '',
+                priority: '',
+                dueDateFrom: '',
+                dueDateTo: '',
+                createdDateFrom: '',
+                createdDateTo: '',
+                tag: '',
+                noPagination: true // Get all tasks by default
+            };
+
+            const mergedFilters = { ...defaultFilters, ...filters };
+            const response = await TaskService.getAllTasks(mergedFilters);
+            
             // Transform backend data to match frontend structure
-            const transformedTasks = response.data.Task.map(task => ({
+            const transformedTasks = response.Task.map(task => ({
                 id: task.task_id,
                 task_id: task.task_id,
                 title: task.title,
@@ -23,12 +41,15 @@ const TaskProvider = (props) => {
                 assigned_to_name: task.assigned_to_name,
                 assigned_by_email: task.assigned_by_email,
                 assigned_by_name: task.assigned_by_name,
+                tags: task.tags || [],
                 created_at: task.created_at,
                 updated_at: task.updated_at
             }));
             setAllTask(transformedTasks);
         } catch (error) {
-            console.log('error', error);
+            console.error('Error fetching tasks:', error);
+            // Set empty array on error to prevent UI crashes
+            setAllTask([]);
         }
     };
 
@@ -42,42 +63,59 @@ const TaskProvider = (props) => {
             const taskData = {
                 title: data.title,
                 description: data.desc,
-                due_date: new Date().toISOString(), // Default to current date
-                priority: "Medium", // Default priority
-                status: "Pending", // Default status
-                assigned_to_email: "user@example.com", // Default email
-                assigned_to_name: "User", // Default name
-                assigned_by_email: "admin@example.com", // Default email
-                assigned_by_name: "Admin" // Default name
+                due_date: data.due_date ? new Date(data.due_date).toISOString() : new Date().toISOString(),
+                priority: data.priority || "Medium",
+                status: data.status || "Pending",
+                assigned_to_email: data.assigned_to_email || "user@example.com",
+                assigned_to_name: data.assigned_to_name || "User",
+                assigned_by_email: data.assigned_by_email || "admin@example.com",
+                assigned_by_name: data.assigned_by_name || "Admin",
+                tags: data.tags || [] // Include tags if provided
             };
 
-            const response = await axios.post(`${TaskApi}/CreateTask`, taskData);
-            if (response.status === 201) {
-                // Refresh tasks after successful creation
-                getTask();
-            }
+            await TaskService.createTask(taskData);
+            // Refresh tasks after successful creation
+            getTask();
         } catch (error) {
-            console.log('error creating task', error);
+            console.error('Error creating task:', error);
         }
     };
 
     const RemoveTask = async (id) => {
         try {
-            await axios.delete(`${TaskApi}/DeleteTask?taskId=${id}`);
+            await TaskService.deleteTask(id);
             // Refresh tasks after successful deletion
             getTask();
         } catch (error) {
-            console.log('error deleting task', error);
+            console.error('Error deleting task:', error);
         }
     };
 
     const UpdateTask = async (taskData) => {
         try {
-            await axios.put(`${TaskApi}/UpdateTask`, taskData);
+            // Transform frontend data to match backend structure
+            const backendTaskData = {
+                task_id: taskData.task_id,
+                title: taskData.title,
+                description: taskData.description,
+                due_date: taskData.due_date,
+                priority: taskData.priority,
+                status: taskData.status,
+                assigned_to_email: taskData.assigned_to_email,
+                assigned_to_name: taskData.assigned_to_name,
+                assigned_by_email: taskData.assigned_by_email,
+                assigned_by_name: taskData.assigned_by_name,
+                tags: taskData.tags || [],
+                deleted: taskData.deleted,
+                created_at: taskData.created_at,
+                updated_at: new Date().toISOString()
+            };
+
+            await TaskService.updateTask(backendTaskData);
             // Refresh tasks after successful update
             getTask();
         } catch (error) {
-            console.log('error updating task', error);
+            console.error('Error updating task:', error);
         }
     };
 
@@ -87,6 +125,7 @@ const TaskProvider = (props) => {
                 ...props,
                 allTask,
                 newTask,
+                getTask, // Expose getTask function for filtering
                 AddNewTask: AddNewTask,
                 RemoveTask: RemoveTask,
                 UpdateTask: UpdateTask

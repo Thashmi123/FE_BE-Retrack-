@@ -1,16 +1,18 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Col, Input, InputGroup, Row } from 'reactstrap';
 import { Picker } from 'emoji-mart';
 import { Btn, Image } from '../../../../AbstractElements';
 import ChatAppContext from '../../../../_helper/Chat';
+import { useUser } from '../../../../contexts/UserContext';
+import UserService from '../../../../Services/user.service';
 
 const SendChat = () => {
-
     const [messageInput, setMessageInput] = useState('');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const toggleEmojiPicker = () => {
-        setShowEmojiPicker(!showEmojiPicker);
-    };
+    const [currentUserId, setCurrentUserId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    
+    const { user, getCurrentUserId } = useUser();
     const {
         chatss,
         selectedUserr,
@@ -18,6 +20,17 @@ const SendChat = () => {
         sendMessageAsyn,
         replyByUserAsyn,
     } = useContext(ChatAppContext);
+
+    // Get current user ID from multiple sources
+    useEffect(() => {
+        const userId = getCurrentUserId ? getCurrentUserId() :
+                      UserService.getCurrentUserId();
+        setCurrentUserId(userId);
+    }, [user, getCurrentUserId]);
+
+    const toggleEmojiPicker = () => {
+        setShowEmojiPicker(!showEmojiPicker);
+    };
 
     const addEmoji = (emoji) => {
         const text = `${messageInput}${emoji.native}`;
@@ -28,30 +41,56 @@ const SendChat = () => {
         setMessageInput(message);
     };
 
-    const handleMessagePress = (e) => {
+    const handleMessagePress = async (e) => {
         if (e.key === 'Enter' || e === 'send') {
-            var container = document.querySelector('.chat-history');
-            setTimeout(function () {
-                container.scrollBy({ top: 200, behavior: 'smooth' });
-            }, 310);
+            // Validate inputs
+            const trimmedMessage = messageInput.trim();
+            if (!trimmedMessage) {
+                console.log('Empty message, not sending');
+                return;
+            }
 
-            let currentUserId = currentUserr.id;
-            let selectedUserId = selectedUserr.id;
-            let selectedUserName = selectedUserr.name;
+            // Get user IDs from multiple sources
+            const senderId = currentUserId || currentUserr?.id || user?.id || user?.userId;
+            const receiverId = selectedUserr?.id;
 
-            if (messageInput.length > 0) {
-                sendMessageAsyn(currentUserId, selectedUserId, messageInput, chatss);
+            if (!senderId || !receiverId) {
+                console.error('Missing user IDs:', { senderId, receiverId });
+                alert('Unable to send message: User information missing');
+                return;
+            }
+
+            if (!selectedUserr) {
+                console.error('No user selected for chat');
+                alert('Please select a user to chat with');
+                return;
+            }
+
+            setIsLoading(true);
+            try {
+                console.log('Sending message:', {
+                    from: senderId,
+                    to: receiverId,
+                    message: trimmedMessage
+                });
+
+                await sendMessageAsyn(senderId, receiverId, trimmedMessage);
                 setMessageInput('');
+                
+                // Scroll to bottom after message is sent
                 setTimeout(() => {
-                    const replyMessage =
-                        'Hey This is ' +
-                        selectedUserName +
-                        ', Sorry I busy right now, I will text you later';
-                    if (selectedUserr.online === true)
-                        document.querySelector('.status-circle').classList.add('online');
-                    selectedUserr.online = true;
-                    replyByUserAsyn(currentUserId, selectedUserId, replyMessage, chatss);
-                }, 5000);
+                    const container = document.querySelector('.chat-history');
+                    if (container) {
+                        container.scrollTop = container.scrollHeight;
+                    }
+                }, 100);
+                
+                console.log('Message sent successfully');
+            } catch (error) {
+                console.error('Failed to send message:', error);
+                alert('Failed to send message. Please try again.');
+            } finally {
+                setIsLoading(false);
             }
         }
     };
@@ -81,10 +120,11 @@ const SendChat = () => {
                         />
                         <Btn
                             attrBtn={{
-                                color: 'primary'
-                                , onClick: () => handleMessagePress('send')
+                                color: 'primary',
+                                disabled: isLoading || !messageInput.trim() || !selectedUserr,
+                                onClick: () => handleMessagePress('send')
                             }}>
-                            Send
+                            {isLoading ? 'Sending...' : 'Send'}
                         </Btn>
                     </InputGroup>
                 </Col>

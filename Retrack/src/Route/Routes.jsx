@@ -10,6 +10,7 @@ import Meeting from "../Components/Application/Meeting";
 import MeetingRoom from "../Components/Application/Meeting/MeetingRoom";
 import MeetingChat from "../Components/Application/Meeting/MeetingChat";
 import DraggableContain from "../Components/Application/Calender/DraggableCalender";
+import KanbanBoardContain from "../Components/Application/KanbanBoard";
 
 export const routes = [
   // Dashboard
@@ -69,5 +70,9 @@ export const routes = [
   {
     path: "components/application/task",
     Component: <Task />,
+  },
+  {
+    path: "components/application/kanbanboard",
+    Component: <KanbanBoardContain />,
   },
 ];

@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
 import { Col, Card, TabContent, TabPane } from 'reactstrap';
-import { TodayTasks, DelayedTasks, UpcomingTasks, ThisWeekTask, ThisMonthTasks, AssignedToMe, MyTasks, Newsletter, Business, Holidays, Notification } from '../../../Constant';
-import ListOfTask from './ListTask';
-import EmptyTaskClass from './EmptyTaskClass';
-import AssignedToMeClass from './AssignedToMe';
+// import { TodayTasks, DelayedTasks, UpcomingTasks, ThisWeekTask, ThisMonthTasks, AssignedToMe, MyTasks, Newsletter, Business, Holidays, Notification } from '../../../Constant';
+// import ListOfTask from './ListTask';
+// import EmptyTaskClass from './EmptyTaskClass';
+// import AssignedToMeClass from './AssignedToMe';
+import EnhancedTaskList from './EnhancedTaskList';
 
 const TabClass = ({ activeTab }) => {
 
@@ -15,40 +16,40 @@ const TabClass = ({ activeTab }) => {
                         <div className="ps-0">
                             <TabContent activeTab={activeTab}>
                                 <TabPane tabId="1">
-                                    <ListOfTask />
+                                    <EnhancedTaskList activeFilter="createdByMe" />
                                 </TabPane>
                                 <TabPane tabId="2">
-                                    <EmptyTaskClass title={TodayTasks} />
+                                    <EnhancedTaskList activeFilter="today" />
                                 </TabPane>
                                 <TabPane tabId="3">
-                                    <EmptyTaskClass title={DelayedTasks} />
+                                    <EnhancedTaskList activeFilter="delayed" />
                                 </TabPane>
                                 <TabPane tabId="4">
-                                    <EmptyTaskClass title={UpcomingTasks} />
+                                    <EnhancedTaskList activeFilter="upcoming" />
                                 </TabPane>
                                 <TabPane tabId="5">
-                                    <EmptyTaskClass title={ThisWeekTask} />
+                                    <EnhancedTaskList activeFilter="thisWeek" />
                                 </TabPane>
                                 <TabPane tabId="6">
-                                    <EmptyTaskClass title={ThisMonthTasks} />
+                                    <EnhancedTaskList activeFilter="thisMonth" />
                                 </TabPane>
                                 <TabPane tabId="7">
-                                    <AssignedToMeClass title={AssignedToMe} />
+                                    <EnhancedTaskList activeFilter="assignedToMe" />
                                 </TabPane>
                                 <TabPane tabId="8">
-                                    <AssignedToMeClass title={MyTasks} />
+                                    <EnhancedTaskList activeFilter="myTasks" />
                                 </TabPane>
                                 <TabPane tabId="9">
-                                    <EmptyTaskClass title={Notification} />
+                                    <EnhancedTaskList tagFilter="Notification" />
                                 </TabPane>
                                 <TabPane tabId="10">
-                                    <EmptyTaskClass title={Newsletter} />
+                                    <EnhancedTaskList tagFilter="Newsletter" />
                                 </TabPane>
                                 <TabPane tabId="11">
-                                    <EmptyTaskClass title={Business} />
+                                    <EnhancedTaskList tagFilter="Business" />
                                 </TabPane>
                                 <TabPane tabId="12">
-                                    <EmptyTaskClass title={Holidays} />
+                                    <EnhancedTaskList tagFilter="Holidays" />
                                 </TabPane>
                             </TabContent>
                         </div>

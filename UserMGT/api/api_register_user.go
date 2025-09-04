@@ -18,20 +18,41 @@ func RegisterUserApi(c *fiber.Ctx) error {
 		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "Invalid input")
 	}
 
+	// Generate UserId before validation
+	user.UserId, _ = functions.IdGenerator("Users", "UserId", "USR")
+	
+	// Validate user data (excluding UserId since it's now generated)
 	validate := validator.New()
 	if err := validate.Struct(user); err != nil {
-		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		// Check if the only error is the UserId field being required
+		// Since we generate it, we can ignore this specific validation error
+		if validationErrs, ok := err.(validator.ValidationErrors); ok {
+			var filteredErrors []string
+			for _, fieldErr := range validationErrs {
+				// Skip UserId required validation error since we generate it
+				if fieldErr.Field() != "UserId" || fieldErr.Tag() != "required" {
+					filteredErrors = append(filteredErrors, fieldErr.Error())
+				}
+			}
+			
+			// If there are other validation errors, return them
+			if len(filteredErrors) > 0 {
+				return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+			}
+		} else {
+			// If it's not a validation error, return it
+			return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		}
 	}
 
 	exists, err := dao.DB_FindUserByEmail(user.Email)
 	if err != nil {
-		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, "Password hashing failed")
+		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, "Database error")
 	}
 	if exists != nil {
 		return utils.SendErrorResponse(c, fiber.StatusConflict, "Email already in use")
 	}
 
-	user.UserId, _ = functions.IdGenerator("Users", "UserId", "USR")
 	user.Role = "user"
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
