@@ -53,7 +53,19 @@ func RegisterUserApi(c *fiber.Ctx) error {
 		return utils.SendErrorResponse(c, fiber.StatusConflict, "Email already in use")
 	}
 
-	user.Role = "user"
+	// Validate and set role
+	validRoles := []string{"user", "admin", "manager", "moderator"}
+	roleValid := false
+	for _, validRole := range validRoles {
+		if user.Role == validRole {
+			roleValid = true
+			break
+		}
+	}
+	
+	if !roleValid {
+		user.Role = "user" // Default to user if invalid role provided
+	}
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = time.Now()
 	user.IsVerified = false

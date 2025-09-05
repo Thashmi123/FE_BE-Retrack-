@@ -49,7 +49,7 @@ const GreetingCard = () => {
                 <i className="fa fa-sun-o me-2"></i>
                 {getGreeting()}, {userName}!
               </H3>
-              <P className="mb-0 text-dark-500">
+              <P className="mb-0 text-body">
                 Welcome back to your workspace. You have {totalUnread} unread
                 messages.
               </P>
@@ -58,8 +58,8 @@ const GreetingCard = () => {
           <Col md="4" className="text-end">
             <div className="greeting-stats">
               <div className="stat-item bg-primary bg-opacity-20 p-3 rounded-3">
-                <H6 className="mb-1 text-dark-500 fw-bold">{totalUnread}</H6>
-                <P className="mb-0 small text-dark-500">Unread Messages</P>
+                <H6 className="mb-1 text-body fw-bold">{totalUnread}</H6>
+                <P className="mb-0 small text-body">Unread Messages</P>
               </div>
             </div>
           </Col>

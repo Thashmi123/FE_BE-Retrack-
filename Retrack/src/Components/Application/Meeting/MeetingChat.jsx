@@ -1,556 +1,472 @@
-import React, { Fragment, useState, useEffect, useContext } from "react";
-import { Breadcrumbs } from "../../../AbstractElements";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
+  CardHeader,
   CardBody,
-  Col,
-  Container,
-  Row,
-  Button,
-  Form,
-  FormGroup,
-  Label,
   Input,
-  Alert,
+  Button,
   Badge,
+  ListGroup,
+  ListGroupItem,
+  Avatar,
+  Spinner,
 } from "reactstrap";
-import MeetingService from "../../../Services/meeting.service";
-import ChatAppContext from "../../../_helper/Chat";
-import ChatService from "../../../Services/chat.service";
-import UserService from "../../../Services/user.service";
+import {
+  MessageSquare,
+  Send,
+  Users,
+  X,
+  Minimize2,
+  Maximize2,
+} from "react-feather";
+import { useMessage } from "../../../contexts/MessageContext";
+import { useUser } from "../../../contexts/UserContext";
 
-const MeetingChat = () => {
-  const [meetings, setMeetings] = useState([]);
-  const [selectedMeeting, setSelectedMeeting] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+const MeetingChat = ({
+  isOpen,
+  onClose,
+  onMinimize,
+  isMinimized = false,
+  meetingId,
+  participants = [],
+  className = "",
+}) => {
+  const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingUsers, setTypingUsers] = useState([]);
 
-  // Chat related states
-  const [messageInput, setMessageInput] = useState("");
-  const [chatMessages, setChatMessages] = useState([]);
-  const [allConversations, setAllConversations] = useState([]);
-  const [participants, setParticipants] = useState([]);
+  const messagesEndRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const chatBodyRef = useRef(null);
 
-  // Get chat context
-  const chatContext = useContext(ChatAppContext);
-  const { chatss, selectedUserr, sendMessageAsyn, currentUserr } =
-    chatContext || {};
+  const { currentMessages, sendMessage, setCurrentMessages, loading } =
+    useMessage();
 
-  // Load meetings on component mount
+  const { user } = useUser();
+
+  // Scroll to bottom when new messages arrive
   useEffect(() => {
-    loadMeetings();
-    loadAllConversations();
-    loadAllUsers();
-  }, []);
+    scrollToBottom();
+  }, [currentMessages]);
 
-  // Load chat messages when a meeting is selected
+  // Update unread count when chat is closed/minimized
   useEffect(() => {
-    if (selectedMeeting) {
-      loadChatMessages();
-      loadMeetingParticipants();
+    if (!isOpen || isMinimized) {
+      setUnreadCount((prev) => prev + 1);
+    } else {
+      setUnreadCount(0);
     }
-  }, [selectedMeeting]);
+  }, [currentMessages, isOpen, isMinimized]);
 
-  const loadMeetings = async () => {
-    try {
-      setLoading(true);
-      const response = await MeetingService.findAllMeetings();
-      // The API returns an object with a "data" property containing the array
-      // The array is under response.data.Meeting
-      const meetingsData = response.data.Meeting || [];
-      setMeetings(meetingsData);
-      setError(null);
-    } catch (err) {
-      setError("Failed to load meetings");
-      console.error("Error loading meetings:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadAllConversations = async () => {
-    try {
-      if (currentUserr?.id) {
-        const response = await ChatService.getConversationsForUser(
-          currentUserr.id
-        );
-        const allConversations = response.conversations || [];
-
-        // Filter to show only meeting conversations
-        const meetingConversations =
-          ChatService.filterMeetingConversations(allConversations);
-        setAllConversations(meetingConversations);
-      }
-    } catch (error) {
-      console.error("Error loading conversations:", error);
-    }
-  };
-
-  const loadAllUsers = async () => {
-    try {
-      const response = await UserService.getAllUsers();
-      if (response.success) {
-        setParticipants(response.users || []);
-      }
-    } catch (error) {
-      console.error("Error loading users:", error);
-    }
-  };
-
-  const loadMeetingParticipants = () => {
-    if (selectedMeeting?.Participants) {
-      // Parse participants from the meeting data
-      const participantNames = selectedMeeting.Participants.split(",").map(
-        (name) => name.trim()
-      );
-      // You could match these with actual user data here
-      console.log("Meeting participants:", participantNames);
-    }
-  };
-
-  const loadChatMessages = async () => {
-    try {
-      if (!selectedMeeting?.MeetingId) {
-        setChatMessages([]);
-        return;
-      }
-
-      // Load messages specific to this meeting
-      const response = await ChatService.getMeetingMessages(
-        selectedMeeting.MeetingId
-      );
-      const messages = response.messages || [];
-
-      // Transform messages to match frontend format
-      const transformedMessages = messages.map((msg) => ({
-        id: msg.id,
-        sender: msg.senderName || `User ${msg.senderId}`,
-        text: msg.text,
-        time: ChatService.formatMessageTime(msg.sentAt),
-        senderId: msg.senderId,
-        meetingId: msg.meetingId,
-        meetingTitle: msg.meetingTitle,
-      }));
-
-      // Sort messages by timestamp (oldest first)
-      transformedMessages.sort((a, b) => new Date(a.time) - new Date(b.time));
-
-      setChatMessages(transformedMessages);
-    } catch (error) {
-      console.error("Error loading chat messages:", error);
-      // Fallback to sample data
-      const sampleMessages = [
-        {
-          id: 1,
-          sender: "You",
-          text: "Hello everyone!",
-          time: "10:30 AM",
-          meetingId: selectedMeeting?.MeetingId,
-          meetingTitle: selectedMeeting?.Title,
-        },
-        {
-          id: 2,
-          sender: "John Doe",
-          text: "Hi there!",
-          time: "10:31 AM",
-          meetingId: selectedMeeting?.MeetingId,
-          meetingTitle: selectedMeeting?.Title,
-        },
-        {
-          id: 3,
-          sender: "Jane Smith",
-          text: "Good morning!",
-          time: "10:32 AM",
-          meetingId: selectedMeeting?.MeetingId,
-          meetingTitle: selectedMeeting?.Title,
-        },
-      ];
-      setChatMessages(sampleMessages);
-    }
-  };
-
-  const handleSelectMeeting = (meeting) => {
-    setSelectedMeeting(meeting);
-    setSuccess(`Selected meeting: ${meeting.Title}`);
-  };
-
-  const handleJoinMeeting = () => {
-    if (selectedMeeting) {
-      setSuccess(`Joined meeting: ${selectedMeeting.Title}`);
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (
-      !messageInput.trim() ||
-      !currentUserr?.id ||
-      !selectedMeeting?.MeetingId
-    )
-      return;
+
+    if (!message.trim() || isSending) return;
+
+    const messageText = message.trim();
+    setMessage("");
+    setIsSending(true);
 
     try {
-      // Send message to meeting chat user (USR-6) with meeting context
-      await ChatService.sendMessage(
-        currentUserr.id,
+      // Send message to meeting chat (using USR-6 as the meeting chat user)
+      await sendMessage(
+        user?.id || "current-user",
         "USR-6",
-        messageInput,
-        selectedMeeting.MeetingId,
-        selectedMeeting.Title
+        messageText,
+        meetingId
       );
 
-      // Add message to local chat immediately
-      const newMessage = {
-        id: Date.now(), // Temporary ID
-        sender: currentUserr.name || "You",
-        text: messageInput,
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        senderId: currentUserr.id,
-        meetingId: selectedMeeting.MeetingId,
-        meetingTitle: selectedMeeting.Title,
-      };
-
-      setChatMessages([...chatMessages, newMessage]);
-      setMessageInput("");
-
-      // Reload messages to get the latest from server
-      setTimeout(() => {
-        loadChatMessages();
-      }, 500);
+      // Clear typing indicator
+      setIsTyping(false);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
     } catch (error) {
       console.error("Error sending message:", error);
-      setError("Failed to send message");
+      // Restore message on error
+      setMessage(messageText);
+    } finally {
+      setIsSending(false);
     }
   };
 
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setMessage(value);
+
+    // Handle typing indicator
+    if (value.trim() && !isTyping) {
+      setIsTyping(true);
+      // In a real implementation, you'd emit a typing event to other participants
+    }
+
+    // Clear typing indicator after 3 seconds of inactivity
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+    }, 3000);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage(e);
+    }
+  };
+
+  const formatMessageTime = (timestamp) => {
+    if (!timestamp) return "";
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInMinutes = (now - date) / (1000 * 60);
+
+    if (diffInMinutes < 1) {
+      return "Just now";
+    } else if (diffInMinutes < 60) {
+      return `${Math.floor(diffInMinutes)}m ago`;
+    } else {
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+  };
+
+  const getParticipantName = (senderId) => {
+    if (senderId === user?.id) {
+      return "You";
+    }
+
+    const participant = participants.find((p) => p.id === senderId);
+    return participant?.name || `User ${senderId}`;
+  };
+
+  const getParticipantAvatar = (senderId) => {
+    if (senderId === user?.id) {
+      return user?.firstName?.charAt(0) || "Y";
+    }
+
+    const participant = participants.find((p) => p.id === senderId);
+    return participant?.name?.charAt(0) || "U";
+  };
+
+  const getParticipantColor = (senderId) => {
+    const colors = [
+      "bg-primary",
+      "bg-success",
+      "bg-warning",
+      "bg-info",
+      "bg-danger",
+      "bg-secondary",
+      "bg-dark",
+    ];
+    const index = senderId.length % colors.length;
+    return colors[index];
+  };
+
+  if (isMinimized) {
+    return (
+      <div className={`meeting-chat-minimized ${className}`}>
+        <Button
+          color="primary"
+          className="chat-toggle-btn position-relative"
+          onClick={onMinimize}
+        >
+          <MessageSquare size={20} />
+          {unreadCount > 0 && (
+            <Badge
+              color="danger"
+              className="position-absolute top-0 start-100 translate-middle rounded-pill"
+              style={{ fontSize: "0.7rem" }}
+            >
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </Badge>
+          )}
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <Fragment>
-      <Breadcrumbs
-        mainTitle="Meeting Chat"
-        parent="Meeting"
-        title="Collaboration"
-      />
-      <Container fluid={true}>
-        {error && <Alert color="danger">{error}</Alert>}
+    <Card className={`meeting-chat ${className}`}>
+      <CardHeader className="d-flex justify-content-between align-items-center py-2">
+        <div className="d-flex align-items-center">
+          <MessageSquare size={18} className="me-2" />
+          <h6 className="mb-0">Meeting Chat</h6>
+          {participants.length > 0 && (
+            <Badge color="light" className="ms-2">
+              <Users size={12} className="me-1" />
+              {participants.length}
+            </Badge>
+          )}
+        </div>
 
-        {success && <Alert color="success">{success}</Alert>}
+        <div className="d-flex align-items-center">
+          <Button
+            color="link"
+            size="sm"
+            className="p-1 me-1"
+            onClick={onMinimize}
+          >
+            <Minimize2 size={16} />
+          </Button>
+          <Button color="link" size="sm" className="p-1" onClick={onClose}>
+            <X size={16} />
+          </Button>
+        </div>
+      </CardHeader>
 
-        <Row>
-          <Col md="4">
-            <Card>
-              <CardBody>
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5>Meetings</h5>
-                  <Button
-                    color="secondary"
-                    size="sm"
-                    onClick={loadMeetings}
-                    disabled={loading}
+      <CardBody className="p-0 d-flex flex-column" style={{ height: "400px" }}>
+        {/* Messages Area */}
+        <div
+          ref={chatBodyRef}
+          className="chat-messages flex-grow-1 p-3"
+          style={{
+            overflowY: "auto",
+            maxHeight: "300px",
+            minHeight: "200px",
+          }}
+        >
+          {loading ? (
+            <div className="text-center py-4">
+              <Spinner size="sm" color="primary" />
+              <p className="mt-2 mb-0 text-muted small">Loading messages...</p>
+            </div>
+          ) : currentMessages.length === 0 ? (
+            <div className="text-center py-4">
+              <MessageSquare size={32} className="text-muted mb-2" />
+              <p className="text-muted small">No messages yet</p>
+              <p className="text-muted small">Start the conversation!</p>
+            </div>
+          ) : (
+            <div className="messages-list">
+              {currentMessages.map((msg, index) => (
+                <div
+                  key={msg.id || index}
+                  className={`message-item d-flex mb-3 ${
+                    msg.sender === user?.id
+                      ? "justify-content-end"
+                      : "justify-content-start"
+                  }`}
+                >
+                  <div
+                    className={`message-content d-flex ${
+                      msg.sender === user?.id ? "flex-row-reverse" : "flex-row"
+                    }`}
                   >
-                    Refresh
-                  </Button>
-                </div>
-
-                {loading ? (
-                  <div className="text-center">
-                    <p>Loading meetings...</p>
-                  </div>
-                ) : (
-                  <div className="meeting-list">
-                    {meetings.map((meeting) => (
-                      <div
-                        key={meeting.MeetingId}
-                        className={`meeting-item p-3 mb-2 rounded cursor-pointer ${
-                          selectedMeeting?.MeetingId === meeting.MeetingId
-                            ? "bg-primary text-white"
-                            : "bg-light text-dark"
-                        }`}
-                        onClick={() => handleSelectMeeting(meeting)}
-                      >
-                        <h6 className="mb-1">{meeting.Title}</h6>
-                        <p className="mb-1 small">
-                          {meeting.Date} at {meeting.StartTime}
-                        </p>
-                        <p className="mb-0 small">
-                          {meeting.Participants || "No participants listed"}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {meetings.length === 0 && !loading && (
-                  <div className="text-center">
-                    <p>No meetings found.</p>
-                  </div>
-                )}
-
-                {selectedMeeting && (
-                  <div className="mt-3">
-                    <Button
-                      color="success"
-                      className="w-100"
-                      onClick={handleJoinMeeting}
+                    {/* Avatar */}
+                    <div
+                      className={`avatar-sm me-2 ${
+                        msg.sender === user?.id ? "ms-2" : "me-2"
+                      }`}
                     >
-                      Join Meeting
-                    </Button>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          </Col>
-
-          <Col md="8">
-            <Card>
-              <CardBody>
-                {selectedMeeting ? (
-                  <Fragment>
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                      <div>
-                        <h4>{selectedMeeting.Title}</h4>
-                        <p className="mb-0 text-muted">
-                          {selectedMeeting.Date} at {selectedMeeting.StartTime}{" "}
-                          - {selectedMeeting.EndTime}
-                        </p>
-                      </div>
-                      <Button
-                        color="primary"
-                        onClick={() => setSelectedMeeting(null)}
+                      <div
+                        className={`avatar-title ${getParticipantColor(
+                          msg.sender
+                        )} rounded-circle text-white fw-bold`}
                       >
-                        Back to Meetings
-                      </Button>
+                        {getParticipantAvatar(msg.sender)}
+                      </div>
                     </div>
 
-                    <Row>
-                      <Col md="8">
-                        <div
-                          className="chat-container border rounded p-3"
-                          style={{ height: "400px", overflowY: "auto" }}
-                        >
-                          <div className="d-flex justify-content-between align-items-center mb-3">
-                            <h5 className="mb-0">Meeting Chat</h5>
-                            <div className="text-muted small">
-                              <i className="icofont-ui-calendar me-1"></i>
-                              {selectedMeeting.Title}
-                            </div>
-                          </div>
-                          <div className="chat-messages">
-                            {chatMessages.map((message) => (
-                              <div
-                                key={message.id}
-                                className={`message mb-3 ${
-                                  message.sender === "You"
-                                    ? "text-end"
-                                    : "text-start"
-                                }`}
-                              >
-                                <div
-                                  className={`d-inline-block p-2 rounded ${
-                                    message.sender === "You"
-                                      ? "bg-primary text-white"
-                                      : "bg-light"
-                                  }`}
-                                  style={{ maxWidth: "80%" }}
-                                >
-                                  <div className="fw-bold small">
-                                    {message.sender}
-                                    {message.meetingTitle && (
-                                      <span className="ms-2 badge bg-secondary">
-                                        {message.meetingTitle}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div>{message.text}</div>
-                                  <div className="small text-muted">
-                                    {message.time}
-                                    {message.meetingId && (
-                                      <span className="ms-2">
-                                        • Meeting: {message.meetingId}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <Form onSubmit={handleSendMessage} className="mt-3">
-                          <FormGroup>
-                            <Input
-                              type="text"
-                              value={messageInput}
-                              onChange={(e) => setMessageInput(e.target.value)}
-                              placeholder="Type your message..."
-                              required
-                            />
-                          </FormGroup>
-                          <div className="d-flex justify-content-end">
-                            <Button color="primary" type="submit">
-                              Send
-                            </Button>
-                          </div>
-                        </Form>
-                      </Col>
-
-                      <Col md="4">
-                        <div
-                          className="participants-container border rounded p-3"
-                          style={{ height: "400px", overflowY: "auto" }}
-                        >
-                          <h5>Meeting Participants</h5>
-                          <div className="participants-list">
-                            {selectedMeeting?.Participants ? (
-                              selectedMeeting.Participants.split(",").map(
-                                (participant, index) => (
-                                  <div
-                                    key={index}
-                                    className="participant d-flex align-items-center mb-2"
-                                  >
-                                    <div
-                                      className="bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center text-white fw-bold"
-                                      style={{
-                                        width: "30px",
-                                        height: "30px",
-                                        fontSize: "12px",
-                                      }}
-                                    >
-                                      {participant
-                                        .trim()
-                                        .charAt(0)
-                                        .toUpperCase()}
-                                    </div>
-                                    <span>{participant.trim()}</span>
-                                    <Badge
-                                      color="success"
-                                      className="ms-auto"
-                                      pill
-                                    >
-                                      Online
-                                    </Badge>
-                                  </div>
-                                )
-                              )
-                            ) : (
-                              <p className="text-muted">
-                                No participants listed
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="mt-4">
-                            <h6>
-                              All Conversations ({allConversations.length})
-                            </h6>
-                            <div
-                              className="conversations-list"
-                              style={{ maxHeight: "150px", overflowY: "auto" }}
-                            >
-                              {allConversations.length > 0 ? (
-                                allConversations.map((conversation) => {
-                                  const meetingId =
-                                    ChatService.getMeetingIdFromConversation(
-                                      conversation
-                                    );
-                                  const meetingTitle =
-                                    meetings.find(
-                                      (m) => m.MeetingId === meetingId
-                                    )?.Title || `Meeting ${meetingId}`;
-
-                                  return (
-                                    <div
-                                      key={conversation.id}
-                                      className="conversation-item p-2 mb-2 bg-light rounded"
-                                    >
-                                      <div className="d-flex justify-content-between align-items-center">
-                                        <span className="small fw-bold">
-                                          <i className="icofont-ui-calendar me-1"></i>
-                                          {meetingTitle}
-                                        </span>
-                                        <Badge color="info" pill>
-                                          {conversation.messageCount || 0}
-                                        </Badge>
-                                      </div>
-                                      <div className="small text-muted">
-                                        Meeting ID: {meetingId}
-                                      </div>
-                                      <div className="small text-muted">
-                                        {new Date(
-                                          conversation.CreatedAt ||
-                                            conversation.createdAt
-                                        ).toLocaleDateString()}
-                                      </div>
-                                    </div>
-                                  );
-                                })
-                              ) : (
-                                <p className="text-muted small">
-                                  No meeting conversations found
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="mt-3">
-                            <h6>Meeting Controls</h6>
-                            <div className="d-flex justify-content-between">
-                              <Button
-                                color="light"
-                                className="btn-air-light"
-                                size="sm"
-                              >
-                                <i className="icofont-microphone"></i>
-                              </Button>
-                              <Button
-                                color="light"
-                                className="btn-air-light"
-                                size="sm"
-                              >
-                                <i className="icofont-ui-video"></i>
-                              </Button>
-                              <Button
-                                color="light"
-                                className="btn-air-light"
-                                size="sm"
-                              >
-                                <i className="icofont-ui-settings"></i>
-                              </Button>
-                              <Button
-                                color="light"
-                                className="btn-air-light"
-                                size="sm"
-                              >
-                                <i className="icofont-share"></i>
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Fragment>
-                ) : (
-                  <div className="text-center py-5">
-                    <i
-                      className="icofont-ui-calendar"
-                      style={{ fontSize: "4rem", color: "#6c757d" }}
-                    ></i>
-                    <h4 className="mt-3">Select a Meeting</h4>
-                    <p className="text-muted">
-                      Choose a meeting from the list to start chatting and
-                      collaborating
-                    </p>
+                    {/* Message Bubble */}
+                    <div
+                      className={`message-bubble ${
+                        msg.sender === user?.id ? "sent" : "received"
+                      }`}
+                    >
+                      <div className="message-header d-flex justify-content-between align-items-center mb-1">
+                        <span className="sender-name small fw-semibold">
+                          {getParticipantName(msg.sender)}
+                        </span>
+                        <span className="message-time small text-muted">
+                          {formatMessageTime(msg.timestamp)}
+                        </span>
+                      </div>
+                      <div className="message-text">{msg.text}</div>
+                    </div>
                   </div>
-                )}
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
-    </Fragment>
+                </div>
+              ))}
+
+              {/* Typing Indicator */}
+              {isTyping && (
+                <div className="typing-indicator d-flex align-items-center">
+                  <div className="avatar-sm me-2">
+                    <div className="avatar-title bg-light rounded-circle text-muted fw-bold">
+                      {user?.firstName?.charAt(0) || "Y"}
+                    </div>
+                  </div>
+                  <div className="typing-bubble">
+                    <div className="typing-dots">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+
+        {/* Message Input */}
+        <div className="chat-input p-3 border-top">
+          <form onSubmit={handleSendMessage}>
+            <div className="input-group">
+              <Input
+                type="text"
+                value={message}
+                onChange={handleInputChange}
+                onKeyPress={handleKeyPress}
+                placeholder="Type a message..."
+                disabled={isSending}
+                className="border-0"
+                style={{ resize: "none" }}
+              />
+              <Button
+                type="submit"
+                color="primary"
+                disabled={!message.trim() || isSending}
+                className="px-3"
+              >
+                {isSending ? <Spinner size="sm" /> : <Send size={16} />}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </CardBody>
+
+      <style jsx>{`
+        .meeting-chat {
+          position: fixed;
+          right: 20px;
+          bottom: 20px;
+          width: 350px;
+          max-height: 500px;
+          z-index: 1050;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+          border-radius: 12px;
+        }
+
+        .meeting-chat-minimized {
+          position: fixed;
+          right: 20px;
+          bottom: 20px;
+          z-index: 1050;
+        }
+
+        .chat-toggle-btn {
+          border-radius: 50%;
+          width: 56px;
+          height: 56px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .message-bubble {
+          max-width: 250px;
+          padding: 8px 12px;
+          border-radius: 18px;
+          position: relative;
+        }
+
+        .message-bubble.sent {
+          background: linear-gradient(135deg, #007bff, #0056b3);
+          color: white;
+          border-bottom-right-radius: 4px;
+        }
+
+        .message-bubble.received {
+          background: #f8f9fa;
+          color: var(--bs-body-color);
+          border-bottom-left-radius: 4px;
+        }
+
+        .sender-name {
+          font-size: 0.75rem;
+        }
+
+        .message-time {
+          font-size: 0.7rem;
+        }
+
+        .typing-indicator {
+          margin-bottom: 1rem;
+        }
+
+        .typing-bubble {
+          background: #f8f9fa;
+          padding: 8px 12px;
+          border-radius: 18px;
+          border-bottom-left-radius: 4px;
+        }
+
+        .typing-dots {
+          display: flex;
+          gap: 4px;
+        }
+
+        .typing-dots span {
+          width: 6px;
+          height: 6px;
+          background: #6c757d;
+          border-radius: 50%;
+          animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(1) {
+          animation-delay: -0.32s;
+        }
+
+        .typing-dots span:nth-child(2) {
+          animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+          0%,
+          80%,
+          100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+          }
+          40% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+
+        .chat-messages::-webkit-scrollbar {
+          width: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 2px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 2px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+          background: #a8a8a8;
+        }
+      `}</style>
+    </Card>
   );
 };
 

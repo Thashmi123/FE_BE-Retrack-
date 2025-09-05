@@ -9,7 +9,7 @@ import (
 
 func DB_DeleteMeeting (meetingId string)  error {
   
-        result, err := dbConfig.DATABASE.Collection("Meetings").UpdateOne(context.Background(), bson.M{"meetingid": meetingId}, bson.M{"$set": bson.M{"deleted": true}})
+        result, err := dbConfig.DATABASE.Collection("Meetings").UpdateOne(context.Background(), bson.M{"MeetingId": meetingId}, bson.M{"$set": bson.M{"deleted": true}})
         if err != nil {
             return err
         }

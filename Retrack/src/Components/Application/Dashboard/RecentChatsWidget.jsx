@@ -211,7 +211,7 @@ const RecentChatsWidget = () => {
                       ></div>
                     </div>
                     <div>
-                      <h6 className="mb-1 fw-semibold text-dark">
+                      <h6 className="mb-1 fw-semibold text-body">
                         {otherUserName}
                       </h6>
                       <p className="mb-0 text-muted small">

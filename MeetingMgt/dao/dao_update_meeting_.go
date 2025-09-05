@@ -10,7 +10,7 @@ import (
 
 func DB_UpdateMeeting (object *dto.Meeting)  error {
 
-	result, err := dbConfig.DATABASE.Collection("Meetings").UpdateOne(context.Background(), bson.M{"meetingid": object.MeetingId, "deleted":false}, bson.M{"$set": object})
+	result, err := dbConfig.DATABASE.Collection("Meetings").UpdateOne(context.Background(), bson.M{"MeetingId": object.MeetingId, "deleted":false}, bson.M{"$set": object})
 	if err != nil {
 		return err
 	}

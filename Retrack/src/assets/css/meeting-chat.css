@@ -29,7 +29,7 @@
 
 /* Meeting chat header styles */
 .chat-header .text-warning {
-  color: #ffc107 !important;
+  color: var(--bs-warning) !important;
 }
 
 /* Pulse animation for meeting chat badge */
@@ -83,7 +83,7 @@
 
 .meeting-message .sender-name {
   font-weight: 600;
-  color: #856404 !important;
+  color: var(--bs-warning) !important;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.5px;

@@ -12,7 +12,7 @@ import (
 func DB_FindMeetingbyMeetingId (meetingId string) (*dto.Meeting, error) {
 	var object dto.Meeting
 
-	err := dbConfig.DATABASE.Collection("Meetings").FindOne(context.Background(), bson.M{"meetingid": meetingId, "deleted":false}).Decode(&object)
+	err := dbConfig.DATABASE.Collection("Meetings").FindOne(context.Background(), bson.M{"MeetingId": meetingId, "deleted":false}).Decode(&object)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, nil

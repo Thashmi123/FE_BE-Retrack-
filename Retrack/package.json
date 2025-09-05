@@ -1,10 +1,8 @@
- 
 {
   "name": "cuba-react",
   "version": "0.1.0",
   "private": true,
   "homepage": "/",
-
   "dependencies": {
     "@asseinfo/react-kanban": "^2.2.0",
     "@auth0/auth0-react": "^1.9.0",
@@ -15,6 +13,7 @@
     "@fullcalendar/timegrid": "^5.11.0",
     "@mobiscroll/react-lite": "^4.10.9",
     "@react-google-maps/api": "^2.10.1",
+    "@types/simple-peer": "^9.11.8",
     "apexcharts": "^3.35.0",
     "axios": "^0.26.1",
     "body-scroll-lock": "^3.1.5",
@@ -90,10 +89,13 @@
     "redux": "^4.1.2",
     "redux-saga": "^1.1.3",
     "sass": "^1.57.0",
+    "simple-peer": "^9.11.1",
     "slick-carousel": "^1.8.1",
+    "socket.io-client": "^4.8.1",
     "styled-components": "^5.3.5",
     "sweetalert2": "^11.4.8",
     "web-vitals": "^2.1.4",
+    "webrtc-adapter": "^9.0.3",
     "world-map-geojson": "^1.0.2"
   },
   "scripts": {

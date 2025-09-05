@@ -119,7 +119,7 @@ const UserHeader = () => {
     localStorage.removeItem("Name");
     localStorage.setItem("authenticated", false);
     logout(); // Call logout from UserContext
-    
+
     // Replace history to prevent back navigation
     history(`${process.env.PUBLIC_URL}/login`, { replace: true });
   };
@@ -139,9 +139,27 @@ const UserHeader = () => {
           }}
         />
         <div className="media-body">
-          <span>{authenticated ? auth0_profile.name : (user ? `${user.name || user.FirstName + ' ' + user.LastName || user.username || 'User'}` : "User")}</span>
+          <span>
+            {authenticated
+              ? auth0_profile.name
+              : user
+              ? `${
+                  user.name ||
+                  user.FirstName + " " + user.LastName ||
+                  user.username ||
+                  "User"
+                }`
+              : "User"}
+          </span>
           <P attrPara={{ className: "mb-0 font-roboto" }}>
-            {Admin} <i className="middle fa fa-angle-down"></i>
+            <span>
+              {authenticated
+                ? auth0_profile.name
+                : user
+                ? `${user.role}`
+                : "User"}
+            </span>{" "}
+            <i className="middle fa fa-angle-down"></i>
           </P>
         </div>
       </div>

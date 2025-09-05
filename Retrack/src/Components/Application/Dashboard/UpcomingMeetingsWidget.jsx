@@ -158,7 +158,7 @@ const UpcomingMeetingsWidget = () => {
                       {status.text}
                     </Badge>
                   </div>
-                  <p className="mb-1 small text-dark">
+                  <p className="mb-1 small text-body">
                     <i className="fa fa-clock me-1"></i>
                     {formatMeetingTime(
                       meeting.Date,
@@ -167,7 +167,7 @@ const UpcomingMeetingsWidget = () => {
                     )}
                   </p>
                   {meeting.Participants && (
-                    <p className="mb-0 small text-dark">
+                    <p className="mb-0 small text-body">
                       <i className="fa fa-users me-1"></i>
                       {meeting.Participants}
                     </p>

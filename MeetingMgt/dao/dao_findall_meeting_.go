@@ -32,14 +32,14 @@ func DB_FindallMeeting(page, size, searchTerm string, noPagination bool) (int64,
 
 	if searchTerm != "" {
 		searchConditions := []bson.M{
-			{"meetingid": bson.M{"$regex": searchTerm, "$options": "i"}},
-			{"title": bson.M{"$regex": searchTerm, "$options": "i"}},
-			{"description": bson.M{"$regex": searchTerm, "$options": "i"}},
-			{"date": bson.M{"$regex": searchTerm, "$options": "i"}},
-			{"starttime": bson.M{"$regex": searchTerm, "$options": "i"}},
-			{"endtime": bson.M{"$regex": searchTerm, "$options": "i"}},
-			{"location": bson.M{"$regex": searchTerm, "$options": "i"}},
-			{"participants": bson.M{"$regex": searchTerm, "$options": "i"}},
+			{"MeetingId": bson.M{"$regex": searchTerm, "$options": "i"}},
+			{"Title": bson.M{"$regex": searchTerm, "$options": "i"}},
+			{"Description": bson.M{"$regex": searchTerm, "$options": "i"}},
+			{"Date": bson.M{"$regex": searchTerm, "$options": "i"}},
+			{"StartTime": bson.M{"$regex": searchTerm, "$options": "i"}},
+			{"EndTime": bson.M{"$regex": searchTerm, "$options": "i"}},
+			{"Location": bson.M{"$regex": searchTerm, "$options": "i"}},
+			{"Participants": bson.M{"$regex": searchTerm, "$options": "i"}},
 		}
 		filter["$or"] = searchConditions
 	}

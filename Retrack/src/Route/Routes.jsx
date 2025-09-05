@@ -9,6 +9,7 @@ import SamplePage from "../Components/Pages/PageLayout/SimplePage";
 import Meeting from "../Components/Application/Meeting";
 import MeetingRoom from "../Components/Application/Meeting/MeetingRoom";
 import MeetingChat from "../Components/Application/Meeting/MeetingChat";
+import StandaloneMeetingRoom from "../Components/Application/Meeting/StandaloneMeetingRoom";
 import DraggableContain from "../Components/Application/Calender/DraggableCalender";
 import KanbanBoardContain from "../Components/Application/KanbanBoard";
 
@@ -66,6 +67,10 @@ export const routes = [
   {
     path: "components/application/meeting/chat",
     Component: <MeetingChat />,
+  },
+  {
+    path: "meeting/:meetingId",
+    Component: <StandaloneMeetingRoom />,
   },
   {
     path: "components/application/task",

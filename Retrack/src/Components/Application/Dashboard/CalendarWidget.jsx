@@ -178,7 +178,7 @@ const CalendarWidget = () => {
                       </div>
                     </div>
                     <div>
-                      <h6 className="mb-1 fw-semibold text-dark">
+                      <h6 className="mb-1 fw-semibold text-body">
                         {event.Title}
                       </h6>
                       <p className="mb-0 small text-muted">

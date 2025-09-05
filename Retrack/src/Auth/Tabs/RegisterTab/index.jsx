@@ -11,7 +11,7 @@ import {
   CreateAccount,
   ConfirmPassword,
   Country,
-  PhoneNumber
+  PhoneNumber,
 } from "../../../Constant";
 import { useNavigate } from "react-router-dom";
 import AuthService from "../../../Services/auth.service";
@@ -30,7 +30,8 @@ const RegisterTab = () => {
     age: "",
     country: "",
     countryCode: "+94",
-    phoneNumber: ""
+    phoneNumber: "",
+    role: "user",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,54 +41,67 @@ const RegisterTab = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate required fields
-    if (!formData.firstName || !formData.lastName || !formData.email ||
-        !formData.username || !formData.password || !formData.gender) {
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.email ||
+      !formData.username ||
+      !formData.password ||
+      !formData.gender
+    ) {
       setError("Please fill in all required fields");
       return;
     }
-    
+
     // Validate age if provided
-    if (formData.age && (isNaN(formData.age) || formData.age < 0 || formData.age > 120)) {
+    if (
+      formData.age &&
+      (isNaN(formData.age) || formData.age < 0 || formData.age > 120)
+    ) {
       setError("Please enter a valid age (0-120)");
       return;
     }
-    
+
     // Validate phone number if provided
     if (formData.phoneNumber && !/^\d{7,15}$/.test(formData.phoneNumber)) {
       setError("Please enter a valid phone number (7-15 digits)");
       return;
     }
-    
+
     // Validate password confirmation
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-    
+
     // Validate password length
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters long");
       return;
     }
-    
+
     setLoading(true);
     setError("");
-    
+
     try {
       // Prepare registration data according to UserMGT requirements
       // Generate a UserId that matches the backend pattern
-      const tempUserId = "USR-" + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-      
+      const tempUserId =
+        "USR-" +
+        Math.floor(Math.random() * 1000000)
+          .toString()
+          .padStart(6, "0");
+
       const registrationData = {
         UserId: tempUserId,
         FirstName: formData.firstName,
@@ -98,12 +112,13 @@ const RegisterTab = () => {
         Gender: formData.gender,
         Age: formData.age ? parseInt(formData.age) : 0,
         Country: formData.country,
-        PhoneNumber: formData.countryCode + formData.phoneNumber
+        PhoneNumber: formData.countryCode + formData.phoneNumber,
+        Role: formData.role,
       };
-      
+
       // Register user
       await AuthService.register(registrationData);
-      
+
       // Registration successful, redirect to login
       history("/login");
     } catch (err) {
@@ -123,13 +138,9 @@ const RegisterTab = () => {
             <P className="retrack-subtitle">
               Fill in the information below to create your account.
             </P>
-            {error && (
-              <div className="alert alert-danger mt-2">
-                {error}
-              </div>
-            )}
+            {error && <div className="alert alert-danger mt-2">{error}</div>}
           </div>
-          
+
           <Form
             className="retrack-form"
             onSubmit={handleRegisterSubmit}
@@ -151,7 +162,7 @@ const RegisterTab = () => {
                   />
                 </FormGroup>
               </Col>
-              
+
               <Col md="6">
                 <FormGroup className="retrack-form-group">
                   <Label className="retrack-label">{LastName} *</Label>
@@ -168,7 +179,7 @@ const RegisterTab = () => {
                 </FormGroup>
               </Col>
             </Row>
-            
+
             <Row>
               <Col md="6">
                 <FormGroup className="retrack-form-group">
@@ -185,7 +196,7 @@ const RegisterTab = () => {
                   />
                 </FormGroup>
               </Col>
-              
+
               <Col md="6">
                 <FormGroup className="retrack-form-group">
                   <Label className="retrack-label">{Username} *</Label>
@@ -202,7 +213,7 @@ const RegisterTab = () => {
                 </FormGroup>
               </Col>
             </Row>
-            
+
             <Row>
               <Col md="6">
                 <FormGroup className="retrack-form-group">
@@ -230,7 +241,7 @@ const RegisterTab = () => {
                   </P>
                 </FormGroup>
               </Col>
-              
+
               <Col md="6">
                 <FormGroup className="retrack-form-group">
                   <Label className="retrack-label">{ConfirmPassword} *</Label>
@@ -247,15 +258,19 @@ const RegisterTab = () => {
                     />
                     <div
                       className="retrack-show-hide"
-                      onClick={() => setToggleConfirmPassword(!toggleConfirmPassword)}
+                      onClick={() =>
+                        setToggleConfirmPassword(!toggleConfirmPassword)
+                      }
                     >
-                      <span className={toggleConfirmPassword ? "hide" : "show"}></span>
+                      <span
+                        className={toggleConfirmPassword ? "hide" : "show"}
+                      ></span>
                     </div>
                   </div>
                 </FormGroup>
               </Col>
             </Row>
-            
+
             <Row>
               <Col md="4">
                 <FormGroup className="retrack-form-group">
@@ -276,7 +291,7 @@ const RegisterTab = () => {
                   </Input>
                 </FormGroup>
               </Col>
-              
+
               <Col md="4">
                 <FormGroup className="retrack-form-group">
                   <Label className="retrack-label">Age</Label>
@@ -293,7 +308,7 @@ const RegisterTab = () => {
                   />
                 </FormGroup>
               </Col>
-              
+
               <Col md="4">
                 <FormGroup className="retrack-form-group">
                   <Label className="retrack-label">{Country}</Label>
@@ -315,7 +330,7 @@ const RegisterTab = () => {
                 </FormGroup>
               </Col>
             </Row>
-            
+
             <Row>
               <Col md="6">
                 <FormGroup className="retrack-form-group">
@@ -352,7 +367,33 @@ const RegisterTab = () => {
                 </FormGroup>
               </Col>
             </Row>
-            
+
+            <Row>
+              <Col md="12">
+                <FormGroup className="retrack-form-group">
+                  <Label className="retrack-label">Role *</Label>
+                  <Input
+                    className="retrack-input"
+                    type="select"
+                    name="role"
+                    id="role"
+                    required
+                    value={formData.role}
+                    onChange={handleInputChange}
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                    <option value="manager">Manager</option>
+                    <option value="moderator">Moderator</option>
+                  </Input>
+                  <P className="retrack-field-description">
+                    Select your role in the organization. This will determine
+                    your access level.
+                  </P>
+                </FormGroup>
+              </Col>
+            </Row>
+
             <Btn
               attrBtn={{
                 color: "primary",
@@ -364,7 +405,7 @@ const RegisterTab = () => {
               {loading ? "Creating Account..." : CreateAccount}
             </Btn>
           </Form>
-          
+
           <div className="retrack-terms">
             <P className="retrack-terms-text">
               By creating an account you agree to ReTrack's{" "}

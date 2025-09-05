@@ -49,7 +49,7 @@ const GreetingCard = () => {
                 "User"
               }`
             : "Hello 👋"}
-          
+
           <span>
             <Image attrImage={{ src: Hand, alt: "hand vector" }} />
           </span>
