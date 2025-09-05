@@ -209,3 +209,31 @@ func DB_ListMessagesByConversation(ctx context.Context, conversationID string, s
 	}
 	return out, cur.Err()
 }
+
+// List messages for a specific meeting (oldest first for chat display). Simple skip/limit paging.
+func DB_ListMessagesByMeeting(ctx context.Context, meetingID string, skip, limit int64) ([]dto.Message, error) {
+	coll := dbConfig.DATABASE.Collection("Messages")
+
+	cur, err := coll.Find(
+		ctx,
+		bson.M{"meetingid": meetingID},
+		options.Find().
+			SetSort(bson.D{{Key: "sentat", Value: 1}}).
+			SetSkip(skip).
+			SetLimit(limit),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var out []dto.Message
+	for cur.Next(ctx) {
+		var m dto.Message
+		if err := cur.Decode(&m); err != nil {
+			return nil, err
+		}
+		out = append(out, m)
+	}
+	return out, cur.Err()
+}

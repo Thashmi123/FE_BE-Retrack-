@@ -51,7 +51,7 @@ const SendChat = () => {
             }
 
             // Get user IDs from multiple sources
-            const senderId = currentUserId || currentUserr?.id || user?.id || user?.userId;
+            const senderId = currentUserId || currentUserr?.id || currentUserr?.userId || user?.id || user?.userId || user?.UserId;
             const receiverId = selectedUserr?.id;
 
             if (!senderId || !receiverId) {

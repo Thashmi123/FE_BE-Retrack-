@@ -51,9 +51,9 @@ const CurrentUser = () => {
     );
   }
 
-  const userName = loggedInUser.name || loggedInUser.username || 'Current User';
-  const userId = loggedInUser.id || loggedInUser.userId || 'guest';
-  const userEmail = loggedInUser.email || '';
+  const userName = loggedInUser.name || loggedInUser.Name || `${loggedInUser.FirstName || ''} ${loggedInUser.LastName || ''}`.trim() || loggedInUser.username || 'Current User';
+  const userId = loggedInUser.id || loggedInUser.userId || loggedInUser.UserId || 'guest';
+  const userEmail = loggedInUser.email || loggedInUser.Email || '';
 
   return (
     <Fragment>

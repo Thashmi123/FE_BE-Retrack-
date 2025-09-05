@@ -19,7 +19,7 @@ const UsersEditContain = () => {
               <EditMyProfile />
             </Col>
             <Col md='12'>
-              <UserTable />
+              {/* <UserTable /> */}
             </Col>
           </Row>
         </div>

@@ -139,7 +139,7 @@ const UserHeader = () => {
           }}
         />
         <div className="media-body">
-          <span>{authenticated ? auth0_profile.name : (user ? `${user.FirstName} ${user.LastName}` : "User")}</span>
+          <span>{authenticated ? auth0_profile.name : (user ? `${user.name || user.FirstName + ' ' + user.LastName || user.username || 'User'}` : "User")}</span>
           <P attrPara={{ className: "mb-0 font-roboto" }}>
             {Admin} <i className="middle fa fa-angle-down"></i>
           </P>

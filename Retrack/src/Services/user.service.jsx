@@ -1,10 +1,9 @@
 import axios from 'axios';
-import { TaskApi } from '../api';
 
 // User service for managing user-related API calls
 class UserService {
   constructor() {
-    this.API_BASE_URL = TaskApi;
+    this.API_BASE_URL = 'http://localhost:8889/UserMGT/api';
     
     // Create axios instance with default config
     this.apiClient = axios.create({
@@ -43,17 +42,22 @@ class UserService {
   // Get all users excluding the specified user ID
   async getAllUsers(excludeUserId = null) {
     try {
-      const params = {};
+      const params = {
+        noPagination: "true" // Get all users without pagination
+      };
       if (excludeUserId) {
         params.excludeUserId = excludeUserId;
       }
 
-      const response = await this.apiClient.get('/users', { params });
+      const response = await this.apiClient.get('/FindallUser', { params });
+      
+      // The backend returns data in a different format than expected
+      // It returns { Count: number, User: [] } instead of { users: [], count: number }
       return {
         success: true,
-        users: response.data.users || [],
-        count: response.data.count || 0,
-        message: response.data.message
+        users: response.data.User || [],
+        count: response.data.Count || 0,
+        message: "Users fetched successfully"
       };
     } catch (error) {
       console.error('Error fetching all users:', error);
@@ -96,18 +100,21 @@ class UserService {
         throw new Error('Search query is required');
       }
 
-      const params = { q: query.trim() };
+      const params = {
+        searchTerm: query.trim(),
+        noPagination: "true"
+      };
       if (excludeUserId) {
         params.excludeUserId = excludeUserId;
       }
 
-      const response = await this.apiClient.get('/users/search', { params });
+      const response = await this.apiClient.get('/FindallUser', { params });
       return {
         success: true,
-        users: response.data.users || [],
-        count: response.data.count || 0,
-        query: response.data.query,
-        message: response.data.message
+        users: response.data.User || [],
+        count: response.data.Count || 0,
+        query: query,
+        message: "Users searched successfully"
       };
     } catch (error) {
       console.error('Error searching users:', error);
@@ -213,20 +220,20 @@ class UserService {
   // Test API connectivity
   async testConnection() {
     try {
-      const response = await this.apiClient.get('/users', { 
+      const response = await this.apiClient.get('/FindallUser', {
         params: { excludeUserId: 'test' },
-        timeout: 5000 
+        timeout: 5000
       });
       return {
         success: true,
         message: 'API connection successful',
-        endpoint: `${this.API_BASE_URL}/users`
+        endpoint: `${this.API_BASE_URL}/FindallUser`
       };
     } catch (error) {
       return {
         success: false,
         message: 'API connection failed',
-        endpoint: `${this.API_BASE_URL}/users`,
+        endpoint: `${this.API_BASE_URL}/FindallUser`,
         error: error.response?.data?.message || error.message
       };
     }

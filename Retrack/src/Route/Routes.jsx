@@ -1,7 +1,7 @@
 // //Sample Page
 import ChatAppContain from "../Components/Application/Chat/ChatApp";
 import VideoChatContain from "../Components/Application/Chat/VideoChat";
-import OnlineCourse from "../Components/Application/OnlineCourse";
+import Dashboard from "../Components/Application/Dashboard";
 import Task from "../Components/Application/Task";
 import UsersEditContain from "../Components/Application/Users/UsersEdit";
 import AccountSettings from "../Components/Application/Users/AccountSettings";
@@ -16,7 +16,7 @@ export const routes = [
   // Dashboard
   {
     path: "pages/dashboard",
-    Component: <OnlineCourse />,
+    Component: <Dashboard />,
   },
   // Sample page (default route)
   {

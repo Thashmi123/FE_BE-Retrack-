@@ -17,4 +17,6 @@ type Message struct {
 	Text           string    `json:"text"`              // message body
 	SentAt         time.Time `json:"sentAt"`            // timestamp when message was sent
 	Status         string    `json:"status"`            // message status (sent, delivered, read)
+	MeetingID      string    `json:"meetingId"`         // fk -> Meeting (optional, for meeting-specific messages)
+	MeetingTitle   string    `json:"meetingTitle"`      // meeting title for display (optional)
 }

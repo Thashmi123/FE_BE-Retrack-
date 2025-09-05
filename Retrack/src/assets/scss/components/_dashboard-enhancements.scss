@@ -1,0 +1,180 @@
+// Dashboard Enhancements
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+// Custom scrollbar for dashboard widgets
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #667eea #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--theme-deafult);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-secondary);
+}
+
+// Widget hover effects
+.recent-chats-widget,
+.upcoming-meetings-widget,
+.task-progress-widget,
+.calendar-widget,
+.activity-hours-widget,
+.active-users-widget {
+  transition: all 0.3s ease;
+}
+
+.recent-chats-widget:hover,
+.upcoming-meetings-widget:hover,
+.task-progress-widget:hover,
+.calendar-widget:hover,
+.activity-hours-widget:hover,
+.active-users-widget:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+// Simplified Color System - Lighter Tones with SCSS Variables
+.bg-fluent-primary {
+  background: var(--theme-deafult) !important;
+}
+
+.bg-fluent-success {
+  background: #28a745 !important;
+}
+
+.bg-fluent-warning {
+  background: #ffc107 !important;
+}
+
+.bg-fluent-neutral {
+  background: var(--theme-secondary) !important;
+}
+
+// Legacy gradient classes for backward compatibility (simplified)
+.bg-gradient-primary {
+  background: var(--theme-deafult) !important;
+}
+
+.bg-gradient-info {
+  background: var(--theme-deafult) !important;
+}
+
+.bg-gradient-success {
+  background: #28a745 !important;
+}
+
+.bg-gradient-warning {
+  background: #ffc107 !important;
+}
+
+.bg-gradient-danger {
+  background: #ffc107 !important;
+}
+
+.bg-gradient-secondary {
+  background: var(--theme-secondary) !important;
+}
+
+// Chat item hover effects
+.chat-item {
+  transition: all 0.3s ease;
+  border-radius: 8px !important;
+}
+
+.chat-item:hover {
+  background-color: #f8f9fa !important;
+  transform: translateX(5px) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+// Meeting item hover effects
+.meeting-item {
+  transition: all 0.3s ease;
+}
+
+.meeting-item:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+// Task status item hover effects
+.task-status-item {
+  transition: all 0.3s ease;
+}
+
+.task-status-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+// Activity item hover effects
+.activity-item {
+  transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+// Greeting card enhancements
+.greeting-card {
+  background: var(--theme-deafult) !important;
+  color: white !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.greeting-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cpattern id='grain' width='100' height='100' patternUnits='userSpaceOnUse'%3E%3Ccircle cx='25' cy='25' r='1' fill='white' opacity='0.1'/%3E%3Ccircle cx='75' cy='75' r='1' fill='white' opacity='0.1'/%3E%3Ccircle cx='50' cy='10' r='0.5' fill='white' opacity='0.1'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23grain)'/%3E%3C/svg%3E");
+  opacity: 0.1;
+  transform: rotate(15deg) translate(50px, -50px);
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .recent-chats-widget,
+  .upcoming-meetings-widget,
+  .task-progress-widget,
+  .calender-widget,
+  .activity-hours-widget,
+  .active-users-widget {
+    margin-bottom: 1rem;
+  }
+
+  .chat-item:hover {
+    transform: translateX(2px) !important;
+  }
+}

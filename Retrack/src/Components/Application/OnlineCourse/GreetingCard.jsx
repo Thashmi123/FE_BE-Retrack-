@@ -29,16 +29,27 @@ import { Card, CardBody } from "reactstrap";
 import { H4, Image, P } from "../../../AbstractElements";
 import Hand from "../../../assets/images/dashboard-3/hand.svg";
 import welcome from "../../../assets/images/dashboard-3/widget.svg";
+// import { useUser } from "../../../contexts/UserContext";
 import { useUser } from "../../../contexts/UserContext";
 
 const GreetingCard = () => {
   const { user } = useUser();
+  const authenticated = JSON.parse(localStorage.getItem("authenticated"));
+  const auth0_profile = JSON.parse(localStorage.getItem("auth0_profile"));
 
   return (
     <Card className="o-hidden welcome-card">
       <CardBody>
         <H4 attrH4={{ className: "mb-3 mt-1 f-w-500 mb-0 f-22" }}>
-          {user ? `Hello, ${user.FirstName}` : "Hello 👋"}
+          {user
+            ? `Hello, ${
+                user.name ||
+                user.FirstName + " " + user.LastName ||
+                user.username ||
+                "User"
+              }`
+            : "Hello 👋"}
+          
           <span>
             <Image attrImage={{ src: Hand, alt: "hand vector" }} />
           </span>

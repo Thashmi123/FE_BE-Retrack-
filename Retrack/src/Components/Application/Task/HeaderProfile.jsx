@@ -9,8 +9,16 @@ const HeaderProfile = () => {
   const { user } = useUser(); // fetch user from context
 
   // fallback values in case context is empty
-  const userName = user ? `${user.FirstName} ${user.LastName}` : "MARK JENCO";
-  const userEmail = user ? user.Email : "markjenco@example.com";
+  const userName = user
+    ? ` ${
+        user.name ||
+        user.FirstName + " " + user.LastName ||
+        user.username ||
+        "User"
+      }`
+    : "Hello 👋";
+
+  // const userEmail = user ? user.Email : "markjenco@example.com";
 
   return (
     <Fragment>
@@ -30,7 +38,7 @@ const HeaderProfile = () => {
           >
             <H6 attrH6={{ className: "f-w-600" }}>{userName}</H6>
           </Link>
-          <P>{userEmail}</P>
+          {/* <P>{userEmail}</P> */}
         </div>
       </div>
     </Fragment>

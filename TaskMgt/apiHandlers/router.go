@@ -112,6 +112,10 @@ func RouteMappings(cg fiber.Router) {
 	cg.Get("/users/:userId/conversations", api.ListConversationsForUserApi)
 	cg.Get("/conversations/:conversationId/messages", api.ListMessagesByConversationApi)
 	cg.Post("/conversations/resolve", api.ResolveConversationApi)
+	cg.Get("/sse/chat", api.SSEChatStream)
+	// Meeting Chat APIs
+	cg.Get("/meetings/:meetingId/messages", api.GetMeetingMessagesApi)
+	cg.Post("/meetings/:meetingId/conversation", api.CreateMeetingConversationApi)
 	
 	// User APIs - Fixed routing
 	cg.Get("/users", api.GetAllUsersApi)

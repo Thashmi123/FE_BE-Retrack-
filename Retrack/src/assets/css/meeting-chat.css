@@ -1,0 +1,127 @@
+/* Meeting Chat Styles */
+.meeting-chat-item {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 2px solid #ffc107 !important;
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.meeting-chat-item:hover {
+  background: linear-gradient(135deg, #ffeaa7 0%, #ffc107 100%) !important;
+  transform: translateX(5px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+.meeting-chat-section .btn {
+  background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.meeting-chat-section .btn:hover {
+  background: linear-gradient(135deg, #ff8c00 0%, #ff6b35 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+.meeting-chat-section .btn:active {
+  transform: translateY(0);
+}
+
+/* Meeting chat header styles */
+.chat-header .text-warning {
+  color: #ffc107 !important;
+}
+
+/* Pulse animation for meeting chat badge */
+@keyframes meeting-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+  }
+}
+
+.meeting-chat-badge {
+  animation: meeting-pulse 2s infinite;
+}
+
+/* Meeting chat message styles */
+.meeting-chat-message {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border-left: 4px solid #ffc107;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.2);
+}
+
+/* Meeting chat avatar */
+.meeting-chat-avatar {
+  background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%) !important;
+  color: white !important;
+  font-size: 18px !important;
+}
+
+/* Meeting chat header */
+.meeting-chat-header {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%) !important;
+  border-bottom: 2px solid #ffc107 !important;
+}
+
+/* Meeting chat messages */
+.meeting-message {
+  margin-bottom: 15px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 193, 7, 0.05);
+  border-left: 3px solid #ffc107;
+}
+
+.meeting-message .sender-name {
+  font-weight: 600;
+  color: #856404 !important;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.meeting-message .message-text {
+  background: white;
+  padding: 8px 12px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ffeaa7;
+}
+
+.meeting-message.other-message .message-text {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 1px solid #ffc107;
+}
+
+/* Meeting chat scrollbar */
+.meeting-chat-header + .simple-list {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.meeting-chat-header + .simple-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.meeting-chat-header + .simple-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.meeting-chat-header + .simple-list::-webkit-scrollbar-thumb {
+  background: #ffc107;
+  border-radius: 3px;
+}
+
+.meeting-chat-header + .simple-list::-webkit-scrollbar-thumb:hover {
+  background: #ff8c00;
+}

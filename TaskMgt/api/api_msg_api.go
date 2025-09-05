@@ -5,12 +5,18 @@ import (
 	"TaskMgt/dto"
 	"TaskMgt/functions"
 	"TaskMgt/utils"
+	"bufio"
 	"context"
+	"encoding/json"
+	"fmt"
+	"log"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 /*
@@ -31,9 +37,11 @@ import (
 // @Router       /messages [POST]
 func SendMessageApi(c *fiber.Ctx) error {
 	type input struct {
-		SenderID   string `json:"senderId" validate:"required"`
-		ReceiverID string `json:"receiverId" validate:"required,nefield=SenderID"`
-		Text       string `json:"text" validate:"required"`
+		SenderID     string `json:"senderId" validate:"required"`
+		ReceiverID   string `json:"receiverId" validate:"required,nefield=SenderID"`
+		Text         string `json:"text" validate:"required"`
+		MeetingID    string `json:"meetingId"`    // optional, for meeting-specific messages
+		MeetingTitle string `json:"meetingTitle"` // optional, for display purposes
 	}
 
 	var in input
@@ -71,16 +79,79 @@ func SendMessageApi(c *fiber.Ctx) error {
 		Text:           in.Text,
 		SentAt:         time.Now().UTC(),
 		Status:         "sent",
+		MeetingID:      in.MeetingID,
+		MeetingTitle:   in.MeetingTitle,
 	}
 
 	if err := dao.DB_CreateMessage(ctx, msg); err != nil {
 		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, "Failed to create message: "+err.Error())
 	}
 
+	// Broadcast message to SSE clients
+	go broadcastMessageToSSEClients(msg)
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message":       "Message created",
 		"conversation":  conv, // handy for UI to jump straight in
 		"messageObject": msg,
+	})
+}
+
+/*
+	GET /meetings/:meetingId/messages?skip=0&limit=30
+	List all messages for a specific meeting.
+*/
+func GetMeetingMessagesApi(c *fiber.Ctx) error {
+	meetingID := c.Params("meetingId")
+	if meetingID == "" {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "meetingId parameter is required")
+	}
+
+	skip, _ := strconv.ParseInt(c.Query("skip", "0"), 10, 64)
+	limit, _ := strconv.ParseInt(c.Query("limit", "30"), 10, 64)
+
+	ctx := context.Background()
+	messages, err := dao.DB_ListMessagesByMeeting(ctx, meetingID, skip, limit)
+	if err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch meeting messages: "+err.Error())
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "Meeting messages retrieved",
+		"messages": messages,
+		"meetingId": meetingID,
+		"count": len(messages),
+	})
+}
+
+/*
+	POST /meetings/:meetingId/conversation
+	Create a conversation for a meeting using meeting ID as a "user ID"
+*/
+func CreateMeetingConversationApi(c *fiber.Ctx) error {
+	meetingID := c.Params("meetingId")
+	if meetingID == "" {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "meetingId parameter is required")
+	}
+
+	ctx := context.Background()
+
+	// Create conversation between meeting ID (as user A) and USR-6 (meeting chat user as user B)
+	newConvID, err := functions.IdGenerator("Conversations", "ID", "CON")
+	if err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, "Failed to generate Conversation ID: "+err.Error())
+	}
+
+	// Use meeting ID as one user and USR-6 as the meeting chat user
+	conv, err := dao.DB_GetOrCreateConversation(ctx, meetingID, "USR-6", newConvID)
+	if err != nil {
+		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, "Failed to create meeting conversation: "+err.Error())
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message":      "Meeting conversation created",
+		"conversation": conv,
+		"meetingId":    meetingID,
 	})
 }
 
@@ -234,4 +305,172 @@ func ResolveConversationApi(c *fiber.Ctx) error {
 		"message":      "Conversation resolved",
 		"conversation": conv,
 	})
+}
+
+// Channel for broadcasting messages to SSE clients
+var messageBroadcast = make(chan dto.Message, 100)
+
+// SSE client manager
+type SSEManager struct {
+	clients map[string]chan dto.Message
+	mutex   sync.RWMutex
+}
+
+var sseManager = &SSEManager{
+	clients: make(map[string]chan dto.Message),
+}
+
+// Add client to SSE manager
+func (m *SSEManager) AddClient(id string) chan dto.Message {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	
+	clientChan := make(chan dto.Message, 10)
+	m.clients[id] = clientChan
+	return clientChan
+}
+
+// Remove client from SSE manager
+func (m *SSEManager) RemoveClient(id string) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	
+	if clientChan, ok := m.clients[id]; ok {
+		close(clientChan)
+		delete(m.clients, id)
+	}
+}
+
+// Broadcast message to all connected clients
+func (m *SSEManager) Broadcast(message dto.Message) {
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
+	
+	for _, clientChan := range m.clients {
+		select {
+		case clientChan <- message:
+		default:
+			// Channel is full, skip
+		}
+	}
+}
+
+// Start message broadcaster goroutine
+func init() {
+	go func() {
+		for message := range messageBroadcast {
+			sseManager.Broadcast(message)
+		}
+	}()
+}
+
+// Broadcast message to all SSE clients
+func broadcastMessageToSSEClients(message *dto.Message) {
+	// Send to broadcast channel
+	select {
+	case messageBroadcast <- *message:
+	default:
+		// Channel is full, log and continue
+		log.Printf("Warning: SSE broadcast channel is full, dropping message")
+	}
+}
+
+/*
+	GET /sse/chat
+	Server-Sent Events endpoint for real-time chat messages
+*/
+
+// @Summary      SSEChatStream
+// @Description  Server-Sent Events endpoint for real-time chat messages
+// @Tags         Chat
+// @Produce      text/event-stream
+// @Param        userId query string true "User ID to filter messages for"
+// @Success      200  {string} string "SSE Stream"
+// @Router       /sse/chat [get]
+func SSEChatStream(c *fiber.Ctx) error {
+	// Get user ID from query parameter
+	userID := c.Query("userId")
+	if userID == "" {
+		return utils.SendErrorResponse(c, fiber.StatusBadRequest, "userId query parameter is required")
+	}
+
+	// Set SSE headers
+	c.Set("Content-Type", "text/event-stream")
+	c.Set("Cache-Control", "no-cache")
+	c.Set("Connection", "keep-alive")
+	c.Set("Access-Control-Allow-Origin", "*")
+	c.Set("Access-Control-Allow-Headers", "Cache-Control")
+	
+	// Generate unique client ID
+	clientID := fmt.Sprintf("%s_%s", userID, uuid.New().String())
+	
+	// Add client to manager
+	clientChan := sseManager.AddClient(clientID)
+	defer sseManager.RemoveClient(clientID)
+	
+	// Send initial connection message
+	connectionMsg := map[string]interface{}{
+		"type":    "connected",
+		"message": "Connected to chat stream",
+		"userId":  userID,
+	}
+	connectionJSON, _ := json.Marshal(connectionMsg)
+	c.Response().Write([]byte(fmt.Sprintf("data: %s\n\n", connectionJSON)))
+	c.Response().Flush()
+	
+	// Send heartbeat every 30 seconds
+	ticker := time.NewTicker(30 * time.Second)
+	defer ticker.Stop()
+	
+	// Client loop
+	for {
+		select {
+		case message, ok := <-clientChan:
+			if !ok {
+				// Channel closed
+				return nil
+			}
+			
+			// Only send messages that are relevant to this user
+			if message.SenderID != userID && message.ReceiverID != userID {
+				continue
+			}
+			
+			// Convert message to JSON
+			messageJSON, err := json.Marshal(message)
+			if err != nil {
+				log.Printf("Error marshaling message for SSE: %v", err)
+				continue
+			}
+			
+			// Send SSE message
+			_, err = c.Response().Write([]byte(fmt.Sprintf("data: %s\n\n", messageJSON)))
+			if err != nil {
+				log.Printf("Error sending SSE message: %v", err)
+				return err
+			}
+			
+			// Flush response
+			c.Response().Flush()
+			
+		case <-ticker.C:
+			// Send heartbeat
+			heartbeat := map[string]interface{}{
+				"type":    "heartbeat",
+				"message": "ping",
+				"time":    time.Now().UTC().Format(time.RFC3339),
+			}
+			heartbeatJSON, _ := json.Marshal(heartbeat)
+			_, err := c.Response().Write([]byte(fmt.Sprintf("data: %s\n\n", heartbeatJSON)))
+			if err != nil {
+				log.Printf("Error sending heartbeat: %v", err)
+				return err
+			}
+			c.Response().Flush()
+			
+		case <-c.Context().Done():
+			// Client disconnected
+			return nil
+		}
+	}
 }

@@ -111,9 +111,9 @@ const ChatMenu = () => {
           <div className='user-profile'>
             {(() => {
               const loggedInUser = user || currentUserr;
-              const userName = loggedInUser ? (loggedInUser.name || loggedInUser.username || 'Current User') : 'Guest User';
+              const userName = loggedInUser ? (loggedInUser.name || loggedInUser.Name || `${loggedInUser.FirstName || ''} ${loggedInUser.LastName || ''}`.trim() || loggedInUser.username || 'Current User') : 'Guest User';
               const userEmail = loggedInUser ? (loggedInUser.email || loggedInUser.Email || '') : '';
-              const userId = loggedInUser ? (loggedInUser.id || loggedInUser.userId || 'guest') : 'guest';
+              const userId = loggedInUser ? (loggedInUser.id || loggedInUser.userId || loggedInUser.UserId || 'guest') : 'guest';
               const avatarInitials = getAvatarInitials(userName);
               const avatarColor = getAvatarColor(userName);
 

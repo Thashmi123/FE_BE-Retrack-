@@ -25,8 +25,9 @@ func FindallUserApi(c *fiber.Ctx) error {
 	searchTerm := c.Query("searchTerm", "")
 	noPaginationStr := c.Query("noPagination", "")
 	noPagination := noPaginationStr == "true"
+	excludeUserId := c.Query("excludeUserId", "") // New parameter to exclude a user
 
-	Count, User, err := dao.DB_FindallUser(page, size, searchTerm, noPagination)
+	Count, User, err := dao.DB_FindallUser(page, size, searchTerm, noPagination, excludeUserId)
 	if err != nil {
 		return utils.SendErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}

@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func DB_FindallUser(page, size, searchTerm string, noPagination bool) (int64, *[]dto.User, error) {
+func DB_FindallUser(page, size, searchTerm string, noPagination bool, excludeUserId string) (int64, *[]dto.User, error) {
 	var skip int64 = 0
 	var limit int64 = 0
 
@@ -29,6 +29,11 @@ func DB_FindallUser(page, size, searchTerm string, noPagination bool) (int64, *[
 	}
 
 	filter := bson.M{"deleted": false}
+	
+	// Exclude a specific user if excludeUserId is provided
+	if excludeUserId != "" {
+		filter["userid"] = bson.M{"$ne": excludeUserId}
+	}
 
 	if searchTerm != "" {
 		searchConditions := []bson.M{
