@@ -60,10 +60,11 @@ func JoinMeetingApi(c *fiber.Ctx) error {
 		if err != nil {
 			return utils.SendErrorResponse(c, fiber.StatusInternalServerError, err.Error())
 		}
-		return utils.SendSuccessResponse(c, map[string]interface{}{
-			"message": "Attendance updated successfully",
-			"attendance": existingAttendance,
-		})
+	return c.Status(fiber.StatusOK).JSON(map[string]interface{}{
+		"operation": "Success",
+		"message": "Attendance updated successfully",
+		"attendance": existingAttendance,
+	})
 	}
 
 	// Create new attendance record
@@ -72,7 +73,8 @@ func JoinMeetingApi(c *fiber.Ctx) error {
 		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, err.Error())
 	}
 
-	return utils.SendSuccessResponse(c, map[string]interface{}{
+	return c.Status(fiber.StatusOK).JSON(map[string]interface{}{
+		"operation": "Success",
 		"message": "Successfully joined meeting",
 		"attendance": attendance,
 	})

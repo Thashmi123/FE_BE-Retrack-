@@ -5,7 +5,6 @@ import (
 	"TaskMgt/dto"
 	"TaskMgt/functions"
 	"TaskMgt/utils"
-	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -415,8 +414,7 @@ func SSEChatStream(c *fiber.Ctx) error {
 		"userId":  userID,
 	}
 	connectionJSON, _ := json.Marshal(connectionMsg)
-	c.Response().Write([]byte(fmt.Sprintf("data: %s\n\n", connectionJSON)))
-	c.Response().Flush()
+	_, _ = c.Write([]byte(fmt.Sprintf("data: %s\n\n", connectionJSON)))
 	
 	// Send heartbeat every 30 seconds
 	ticker := time.NewTicker(30 * time.Second)
@@ -444,14 +442,11 @@ func SSEChatStream(c *fiber.Ctx) error {
 			}
 			
 			// Send SSE message
-			_, err = c.Response().Write([]byte(fmt.Sprintf("data: %s\n\n", messageJSON)))
+			_, err = c.Write([]byte(fmt.Sprintf("data: %s\n\n", messageJSON)))
 			if err != nil {
 				log.Printf("Error sending SSE message: %v", err)
 				return err
 			}
-			
-			// Flush response
-			c.Response().Flush()
 			
 		case <-ticker.C:
 			// Send heartbeat
@@ -461,12 +456,11 @@ func SSEChatStream(c *fiber.Ctx) error {
 				"time":    time.Now().UTC().Format(time.RFC3339),
 			}
 			heartbeatJSON, _ := json.Marshal(heartbeat)
-			_, err := c.Response().Write([]byte(fmt.Sprintf("data: %s\n\n", heartbeatJSON)))
+			_, err := c.Write([]byte(fmt.Sprintf("data: %s\n\n", heartbeatJSON)))
 			if err != nil {
 				log.Printf("Error sending heartbeat: %v", err)
 				return err
 			}
-			c.Response().Flush()
 			
 		case <-c.Context().Done():
 			// Client disconnected

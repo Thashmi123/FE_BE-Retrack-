@@ -1,7 +1,6 @@
 package api
 
 import (
-	"MeetingMgt/dto"
 	"MeetingMgt/utils"
 	"time"
 
@@ -58,7 +57,8 @@ func LeaveMeetingApi(c *fiber.Ctx) error {
 		return utils.SendErrorResponse(c, fiber.StatusInternalServerError, err.Error())
 	}
 
-	return utils.SendSuccessResponse(c, map[string]interface{}{
+	return c.Status(fiber.StatusOK).JSON(map[string]interface{}{
+		"operation": "Success",
 		"message": "Successfully left meeting",
 		"attendance": attendance,
 	})

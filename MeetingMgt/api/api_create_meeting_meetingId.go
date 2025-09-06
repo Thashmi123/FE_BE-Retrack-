@@ -1,22 +1,17 @@
 package api
 
 import (
-  
-"MeetingMgt/utils"
-"github.com/gofiber/fiber/v2"
+	"MeetingMgt/utils"
+	"github.com/gofiber/fiber/v2"
 
-  "MeetingMgt/functions"
-    
-  "MeetingMgt/dto"
-    "github.com/go-playground/validator/v10"
-    
-    "MeetingMgt/dao"
-    
-    "bytes"
-    "encoding/json"
-    "fmt"
-    "net/http"
-    "time"
+	"MeetingMgt/functions"
+	"MeetingMgt/dto"
+	"github.com/go-playground/validator/v10"
+	"MeetingMgt/dao"
+	
+	"fmt"
+	"net/http"
+	"time"
 )
 
 // @Summary      CreateMeeting 

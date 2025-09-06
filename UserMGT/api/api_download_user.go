@@ -26,7 +26,7 @@ import (
 
 func DownloadUserApi(c *fiber.Ctx) error {
 
-	_, objects, err := dao.DB_FindallUser("1", "10", "", true)
+	_, objects, err := dao.DB_FindallUser("1", "10", "", true, "")
 	if err != nil {
 		return err
 	}
