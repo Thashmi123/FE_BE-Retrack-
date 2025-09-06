@@ -27,6 +27,25 @@ const deleteMeeting = (id) => {
   return axios.delete(`${API_BASE_URL}/DeleteMeeting?id=${id}`);
 };
 
+// Attendance tracking methods
+const joinMeeting = (attendanceData) => {
+  return axios.post(`${API_BASE_URL}/JoinMeeting`, attendanceData);
+};
+
+const leaveMeeting = (leaveData) => {
+  return axios.post(`${API_BASE_URL}/LeaveMeeting`, leaveData);
+};
+
+const getMeetingAttendance = (meetingId) => {
+  return axios.get(
+    `${API_BASE_URL}/GetMeetingAttendance?meetingId=${meetingId}`
+  );
+};
+
+const getUserAttendance = (userId) => {
+  return axios.get(`${API_BASE_URL}/GetUserAttendance?userId=${userId}`);
+};
+
 const meetingService = {
   findAllMeetings,
   getAllMeetings,
@@ -34,6 +53,10 @@ const meetingService = {
   createMeeting,
   updateMeeting,
   deleteMeeting,
+  joinMeeting,
+  leaveMeeting,
+  getMeetingAttendance,
+  getUserAttendance,
 };
 
 export default meetingService;

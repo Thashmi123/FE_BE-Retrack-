@@ -33,6 +33,7 @@ import {
 } from "react-feather";
 import MeetingService from "../../../Services/meeting.service";
 import EnhancedMeetingRoom from "./EnhancedMeetingRoom";
+import MeetingAttendance from "./MeetingAttendance";
 
 const MeetingRoom = () => {
   const [meeting, setMeeting] = useState(null);
@@ -50,9 +51,16 @@ const MeetingRoom = () => {
   const [activeTab, setActiveTab] = useState("1");
   const [selectedMeeting, setSelectedMeeting] = useState(null);
 
+  // Attendance tracking state
+  const [showAttendance, setShowAttendance] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
   // Load meetings on component mount
   useEffect(() => {
     loadMeetings();
+    // Get current user ID from localStorage or context
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    setCurrentUserId(user.UserId || user.userId);
   }, []);
 
   const loadMeetings = async () => {
@@ -286,11 +294,57 @@ const MeetingRoom = () => {
     }
   };
 
-  const handleSelectMeeting = (selectedMeeting) => {
+  const handleSelectMeeting = async (selectedMeeting) => {
     setSelectedMeeting(selectedMeeting);
     setMeeting(selectedMeeting);
     setMeetingId(selectedMeeting.MeetingId || selectedMeeting.ID);
     setSuccess(`Selected meeting: ${selectedMeeting.Title}`);
+
+    // Automatically track attendance when meeting is selected
+    await trackMeetingJoin(selectedMeeting);
+  };
+
+  // Track when user joins a meeting
+  const trackMeetingJoin = async (meeting) => {
+    if (!currentUserId) {
+      console.warn("No current user ID available for attendance tracking");
+      return;
+    }
+
+    try {
+      const attendanceData = {
+        MeetingId: meeting.MeetingId || meeting.ID,
+        UserId: currentUserId,
+        UserName: meeting.UserName || "Unknown User",
+        UserEmail: meeting.UserEmail || "",
+      };
+
+      await MeetingService.joinMeeting(attendanceData);
+      console.log("Attendance tracked for meeting join");
+    } catch (error) {
+      console.error("Error tracking meeting join:", error);
+      // Don't show error to user as this is background tracking
+    }
+  };
+
+  // Track when user leaves a meeting
+  const trackMeetingLeave = async (meetingId) => {
+    if (!currentUserId || !meetingId) {
+      return;
+    }
+
+    try {
+      const leaveData = {
+        MeetingId: meetingId,
+        UserId: currentUserId,
+        Date: new Date().toISOString().split("T")[0], // YYYY-MM-DD format
+      };
+
+      await MeetingService.leaveMeeting(leaveData);
+      console.log("Attendance tracked for meeting leave");
+    } catch (error) {
+      console.error("Error tracking meeting leave:", error);
+    }
   };
 
   const handleStartMeeting = () => {
@@ -306,7 +360,12 @@ const MeetingRoom = () => {
     }
   };
 
-  const handleLeaveMeeting = () => {
+  const handleLeaveMeeting = async () => {
+    // Track attendance when leaving
+    if (selectedMeeting) {
+      await trackMeetingLeave(selectedMeeting.MeetingId || selectedMeeting.ID);
+    }
+
     setIsInMeeting(false);
     setMeeting(null);
     setMeetingId("");
@@ -629,19 +688,41 @@ const MeetingRoom = () => {
                           </div>
                         </Col>
                         <Col md="4" className="text-end">
-                          <Button
-                            color="success"
-                            size="lg"
-                            onClick={handleStartMeeting}
-                            className="w-100"
-                          >
-                            <Video className="me-2" size={20} />
-                            Start Meeting
-                          </Button>
+                          <div className="d-grid gap-2">
+                            <Button
+                              color="success"
+                              size="lg"
+                              onClick={handleStartMeeting}
+                            >
+                              <Video className="me-2" size={20} />
+                              Start Meeting
+                            </Button>
+                            <Button
+                              color="info"
+                              size="sm"
+                              onClick={() => setShowAttendance(!showAttendance)}
+                            >
+                              <Users className="me-2" size={16} />
+                              {showAttendance ? "Hide" : "Show"} Attendance
+                            </Button>
+                          </div>
                         </Col>
                       </Row>
                     </CardBody>
                   </Card>
+                </Col>
+              </Row>
+            )}
+
+            {/* Attendance Display */}
+            {showAttendance && selectedMeeting && (
+              <Row className="mt-4">
+                <Col md="12">
+                  <MeetingAttendance
+                    meetingId={selectedMeeting.MeetingId || selectedMeeting.ID}
+                    meetingTitle={selectedMeeting.Title}
+                    onClose={() => setShowAttendance(false)}
+                  />
                 </Col>
               </Row>
             )}

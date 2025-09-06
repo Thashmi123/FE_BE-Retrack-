@@ -49,6 +49,12 @@ cg.Get("/FindallAttendance", api.FindallAttendanceApi)
 cg.Post("/UploadAttendance", api.UploadAttendanceApi)
 cg.Get("/DownloadAttendance", api.DownloadAttendanceApi)
 
+// New attendance tracking endpoints
+cg.Post("/JoinMeeting", api.JoinMeetingApi)
+cg.Post("/LeaveMeeting", api.LeaveMeetingApi)
+cg.Get("/GetMeetingAttendance", api.GetMeetingAttendanceApi)
+cg.Get("/GetUserAttendance", api.GetUserAttendanceApi)
+
 cg.Get("/swagger", api.SwaggerHandler)
 
 }

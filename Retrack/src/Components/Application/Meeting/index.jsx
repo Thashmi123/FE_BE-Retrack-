@@ -16,6 +16,7 @@ import {
 } from "reactstrap";
 import MeetingService from "../../../Services/meeting.service";
 import UserService from "../../../Services/user.service";
+import MeetingAttendance from "./MeetingAttendance";
 
 const Meeting = () => {
   const [meetings, setMeetings] = useState([]);
@@ -23,6 +24,9 @@ const Meeting = () => {
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedParticipants, setSelectedParticipants] = useState([]);
+  const [showAttendance, setShowAttendance] = useState(false);
+  const [selectedMeetingForAttendance, setSelectedMeetingForAttendance] =
+    useState(null);
 
   const [meetingForm, setMeetingForm] = useState({
     MeetingId: "",
@@ -175,6 +179,11 @@ const Meeting = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewAttendance = (meeting) => {
+    setSelectedMeetingForAttendance(meeting);
+    setShowAttendance(true);
   };
 
   return (
@@ -411,6 +420,14 @@ const Meeting = () => {
                                 Edit
                               </Button>
                               <Button
+                                color="success"
+                                size="sm"
+                                className="me-1"
+                                onClick={() => handleViewAttendance(meeting)}
+                              >
+                                Attendance
+                              </Button>
+                              <Button
                                 color="danger"
                                 size="sm"
                                 onClick={() => handleDelete(meeting.MeetingId)}
@@ -434,6 +451,22 @@ const Meeting = () => {
             </Card>
           </Col>
         </Row>
+
+        {/* Attendance Display Modal */}
+        {showAttendance && selectedMeetingForAttendance && (
+          <Row className="mt-4">
+            <Col md="12">
+              <MeetingAttendance
+                meetingId={selectedMeetingForAttendance.MeetingId}
+                meetingTitle={selectedMeetingForAttendance.Title}
+                onClose={() => {
+                  setShowAttendance(false);
+                  setSelectedMeetingForAttendance(null);
+                }}
+              />
+            </Col>
+          </Row>
+        )}
       </Container>
     </Fragment>
   );
