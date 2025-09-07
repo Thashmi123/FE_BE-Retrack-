@@ -53,7 +53,7 @@ const NavClass = ({ activeToggle }) => {
                         <li>
                           <hr />
                         </li>
-                        <NavItem>
+                        {/* <NavItem>
                           <span className='main-title'>
                             {' '}
                             {Tags}
@@ -61,9 +61,9 @@ const NavClass = ({ activeToggle }) => {
                               <PlusCircle />
                             </span>
                           </span>
-                        </NavItem>
-                        <CreateTag tagCallback={tagCallback} tagModal={tagModal} />
-                        {tagData.map((item) => (
+                        </NavItem> */}
+                        {/* <CreateTag tagCallback={tagCallback} tagModal={tagModal} /> */}
+                        {/* {tagData.map((item) => (
                           <Fragment key={item.id}>
                             <NavItem>
                               <a
@@ -77,7 +77,7 @@ const NavClass = ({ activeToggle }) => {
                               </a>
                             </NavItem>
                           </Fragment>
-                        ))}
+                        ))} */}
                       </Nav>
                     </div>
                   </CardBody>

@@ -8,6 +8,7 @@ import Signin from "../Auth/Signin";
 import PrivateRoute from "./PrivateRoute";
 import { authRoutes } from "./AuthRoutes";
 import { useUser } from "../contexts/UserContext";
+import StandaloneMeetingRoom from "../Components/Application/Meeting/StandaloneMeetingRoom";
 
 const Routers = () => {
   const { isLoggedIn } = useUser();
@@ -26,6 +27,12 @@ const Routers = () => {
           {authRoutes.map(({ path, Component }, i) => (
             <Route key={i} path={path} element={Component} />
           ))}
+
+          {/* Standalone meeting room route */}
+          <Route
+            path="/meeting/:meetingId"
+            element={<StandaloneMeetingRoom />}
+          />
 
           {/* Protected routes */}
           <Route path="/" element={<PrivateRoute />}>

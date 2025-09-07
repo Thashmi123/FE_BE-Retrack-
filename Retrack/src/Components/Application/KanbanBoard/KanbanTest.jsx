@@ -57,7 +57,7 @@ describe('TaskKanbanBoard', () => {
           description: 'Test Description',
           due_date: '2023-12-31T00:00:00Z',
           priority: 'High',
-          status: 'To Do',
+          status: 'TO DO',
           assigned_to_name: 'John Doe',
           tags: ['Important']
         }

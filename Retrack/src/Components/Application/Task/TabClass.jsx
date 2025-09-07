@@ -15,9 +15,9 @@ const TabClass = ({ activeTab }) => {
                     <Card className="email-body radius-left">
                         <div className="ps-0">
                             <TabContent activeTab={activeTab}>
-                                <TabPane tabId="1">
+                                {/* <TabPane tabId="1">
                                     <EnhancedTaskList activeFilter="createdByMe" />
-                                </TabPane>
+                                </TabPane> */}
                                 <TabPane tabId="2">
                                     <EnhancedTaskList activeFilter="today" />
                                 </TabPane>
@@ -30,16 +30,16 @@ const TabClass = ({ activeTab }) => {
                                 <TabPane tabId="5">
                                     <EnhancedTaskList activeFilter="thisWeek" />
                                 </TabPane>
-                                <TabPane tabId="6">
+                                <TabPane tabId="1">
                                     <EnhancedTaskList activeFilter="thisMonth" />
                                 </TabPane>
-                                <TabPane tabId="7">
+                                <TabPane tabId="6">
                                     <EnhancedTaskList activeFilter="assignedToMe" />
                                 </TabPane>
-                                <TabPane tabId="8">
+                                <TabPane tabId="7">
                                     <EnhancedTaskList activeFilter="myTasks" />
                                 </TabPane>
-                                <TabPane tabId="9">
+                                {/* <TabPane tabId="9">
                                     <EnhancedTaskList tagFilter="Notification" />
                                 </TabPane>
                                 <TabPane tabId="10">
@@ -50,7 +50,7 @@ const TabClass = ({ activeTab }) => {
                                 </TabPane>
                                 <TabPane tabId="12">
                                     <EnhancedTaskList tagFilter="Holidays" />
-                                </TabPane>
+                                </TabPane> */}
                             </TabContent>
                         </div>
                     </Card>

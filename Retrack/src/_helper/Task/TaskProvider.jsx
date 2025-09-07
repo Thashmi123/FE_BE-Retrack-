@@ -67,7 +67,7 @@ const TaskProvider = (props) => {
           ? new Date(data.due_date).toISOString()
           : new Date().toISOString(),
         priority: data.priority || "Medium",
-        status: data.status || "TO DO",
+        status: data.status || "Pending",
         assigned_to_email: data.assigned_to_email || "user@example.com",
         assigned_to_name: data.assigned_to_name || "User",
         assigned_by_email: data.assigned_by_email || "admin@example.com",

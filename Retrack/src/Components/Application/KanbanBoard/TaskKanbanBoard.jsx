@@ -10,7 +10,7 @@ const TaskKanbanBoard = () => {
     columns: [
       {
         id: 1,
-        title: "To Do",
+        title: "Pending",
         cards: [],
       },
       {
@@ -20,7 +20,7 @@ const TaskKanbanBoard = () => {
       },
       {
         id: 3,
-        title: "Done",
+        title: "Completed",
         cards: [],
       },
     ],
@@ -41,11 +41,15 @@ const TaskKanbanBoard = () => {
       const response = await TaskService.getAllTasks({ noPagination: true });
 
       // Group tasks by status
-      const todoTasks = response.Task.filter((task) => task.status === "TO DO");
+      const todoTasks = response.Task.filter(
+        (task) => task.status === "Pending"
+      );
       const inProgressTasks = response.Task.filter(
         (task) => task.status === "In Progress"
       );
-      const doneTasks = response.Task.filter((task) => task.status === "Done");
+      const doneTasks = response.Task.filter(
+        (task) => task.status === "Completed"
+      );
 
       // Transform tasks to kanban cards
       const todoCards = todoTasks.map((task) => ({
@@ -85,7 +89,7 @@ const TaskKanbanBoard = () => {
         columns: [
           {
             id: 1,
-            title: "To Do",
+            title: "Pending",
             cards: todoCards,
           },
           {
@@ -95,7 +99,7 @@ const TaskKanbanBoard = () => {
           },
           {
             id: 3,
-            title: "Done",
+            title: "Completed",
             cards: doneCards,
           },
         ],
@@ -116,9 +120,9 @@ const TaskKanbanBoard = () => {
 
       // Determine the new status based on the destination column
       let newStatus = "";
-      if (destination.toColumnId === 1) newStatus = "To Do";
+      if (destination.toColumnId === 1) newStatus = "Pending";
       else if (destination.toColumnId === 2) newStatus = "In Progress";
-      else if (destination.toColumnId === 3) newStatus = "Done";
+      else if (destination.toColumnId === 3) newStatus = "Completed";
 
       // Update the task status in the backend
       if (newStatus && card.status !== newStatus) {

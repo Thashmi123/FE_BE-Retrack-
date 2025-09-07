@@ -198,14 +198,14 @@ export const MessageProvider = ({ children }) => {
       }
 
       const sseUrl = `${
-        process.env.REACT_APP_API_BASE_URL || "http://localhost:8080"
+        process.env.REACT_APP_API_BASE_URL || "http://localhost:8888"
       }/sse/chat?userId=${currentUserId}`;
-      console.log("Connecting to SSE at:", sseUrl);
+      // console.log("Connecting to SSE at:", sseUrl);
 
       eventSourceRef.current = new EventSource(sseUrl);
 
       eventSourceRef.current.onopen = () => {
-        console.log("SSE connection established");
+        // console.log("SSE connection established");
         stopPolling(); // Stop polling when SSE is connected
         dispatch({
           type: MESSAGE_ACTIONS.SET_SSE_CONNECTION,
@@ -219,7 +219,7 @@ export const MessageProvider = ({ children }) => {
 
           // Handle different message types
           if (data.type === "connected") {
-            console.log("SSE connected:", data.message);
+            // console.log("SSE connected:", data.message);
             return;
           }
 
@@ -230,7 +230,7 @@ export const MessageProvider = ({ children }) => {
 
           // Handle new chat message
           if (data.id && data.senderId && data.text) {
-            console.log("New message received via SSE:", data);
+            // console.log("New message received via SSE:", data);
 
             // Transform message to match frontend format
             const newMessage = {
@@ -287,11 +287,11 @@ export const MessageProvider = ({ children }) => {
         if (state.sseReconnectAttempts < maxReconnectAttempts) {
           const delay =
             reconnectDelay * Math.pow(2, state.sseReconnectAttempts); // Exponential backoff
-          console.log(
-            `Attempting to reconnect in ${delay}ms (attempt ${
-              state.sseReconnectAttempts + 1
-            }/${maxReconnectAttempts})`
-          );
+          // console.log(
+          //   `Attempting to reconnect in ${delay}ms (attempt ${
+          //     state.sseReconnectAttempts + 1
+          //   }/${maxReconnectAttempts})`
+          // );
 
           reconnectTimeoutRef.current = setTimeout(() => {
             dispatch({

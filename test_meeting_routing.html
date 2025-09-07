@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Meeting Routing</title>
+  </head>
+  <body>
+    <h1>Meeting Routing Test</h1>
+    <p>This page tests if the meeting routing is working correctly.</p>
+
+    <h2>Test Links:</h2>
+    <ul>
+      <li>
+        <a href="http://localhost:3000/meeting/test123" target="_blank"
+          >Test Meeting 123</a
+        >
+      </li>
+      <li>
+        <a href="http://localhost:3000/meeting/MEE_456789" target="_blank"
+          >Test Meeting MEE_456789</a
+        >
+      </li>
+      <li>
+        <a href="http://localhost:3000/meeting/sample-meeting" target="_blank"
+          >Test Meeting Sample</a
+        >
+      </li>
+    </ul>
+
+    <h2>Expected Behavior:</h2>
+    <ul>
+      <li>Clicking any link should open a new tab</li>
+      <li>The new tab should show the StandaloneMeetingRoom component</li>
+      <li>You should see console logs showing the meetingId</li>
+      <li>The component should attempt to load meeting data</li>
+    </ul>
+
+    <h2>Troubleshooting:</h2>
+    <ul>
+      <li>Make sure React app is running on port 3000</li>
+      <li>Check browser console for any errors</li>
+      <li>Verify the route is properly configured</li>
+    </ul>
+
+    <script>
+      console.log(
+        "Test page loaded. Click the links above to test meeting routing."
+      );
+    </script>
+  </body>
+</html>

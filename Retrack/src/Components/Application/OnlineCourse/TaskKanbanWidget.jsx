@@ -30,13 +30,13 @@ const TaskKanbanWidget = () => {
 
       // Count tasks by status
       const todoCount = response.Task.filter(
-        (task) => task.status === "To Do"
+        (task) => task.status === "Pending"
       ).length;
       const inProgressCount = response.Task.filter(
-        (task) => task.status === "IN PROGRESS"
+        (task) => task.status === "In Progress"
       ).length;
       const doneCount = response.Task.filter(
-        (task) => task.status === "DONE"
+        (task) => task.status === "Completed"
       ).length;
 
       setTaskCounts({
@@ -88,7 +88,7 @@ const TaskKanbanWidget = () => {
             <div className="kanban-widget-row">
               <div className="kanban-widget-column">
                 <div className="kanban-widget-header bg-primary text-white">
-                  <h6>To Do</h6>
+                  <h6>Pending</h6>
                 </div>
                 <div className="kanban-widget-count">
                   <h3>{taskCounts.todo}</h3>
@@ -104,7 +104,7 @@ const TaskKanbanWidget = () => {
               </div>
               <div className="kanban-widget-column">
                 <div className="kanban-widget-header bg-success text-white">
-                  <h6>Done</h6>
+                  <h6>Completed</h6>
                 </div>
                 <div className="kanban-widget-count">
                   <h3>{taskCounts.done}</h3>

@@ -24,7 +24,10 @@ class WebRTCService {
 
   // Setup socket event listeners
   setupSocketListeners() {
-    if (!this.socket) return;
+    if (!this.socket) {
+      console.log("No socket connection - running in standalone mode");
+      return;
+    }
 
     this.socket.on("user-joined", (userId) => {
       console.log("User joined:", userId);
@@ -169,6 +172,12 @@ class WebRTCService {
         type,
         muted,
       });
+    } else {
+      console.log(`Standalone mode - ${type} ${muted ? "muted" : "unmuted"}`);
+      // In standalone mode, we can still notify locally
+      if (this.onUserMuted) {
+        this.onUserMuted(this.getCurrentUserId(), type, muted);
+      }
     }
   }
 
@@ -179,6 +188,12 @@ class WebRTCService {
         roomId: this.roomId,
         userId: userId,
       });
+    } else {
+      console.log("Standalone mode - no socket connection needed");
+      // In standalone mode, we can still track the user joining
+      if (this.onUserJoined) {
+        this.onUserJoined(userId);
+      }
     }
   }
 

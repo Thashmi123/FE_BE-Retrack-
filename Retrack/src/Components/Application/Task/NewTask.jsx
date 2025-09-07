@@ -174,7 +174,7 @@ const NewTaskClass = () => {
                 )}
               </FormGroup>
               
-              <FormGroup className="col-md-12">
+              {/* <FormGroup className="col-md-12">
                 <Label>Tags</Label>
                 <Controller
                   name="tags"
@@ -189,7 +189,7 @@ const NewTaskClass = () => {
                   )}
                 />
                 <small className="form-text text-muted">Hold Ctrl/Cmd to select multiple tags</small>
-              </FormGroup>
+              </FormGroup> */}
             </div>
 
             <Btn

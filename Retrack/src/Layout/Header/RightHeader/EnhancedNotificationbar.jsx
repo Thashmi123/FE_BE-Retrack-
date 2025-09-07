@@ -38,7 +38,7 @@ const EnhancedNotificationbar = () => {
         const urgentTasks = tasksResponse.Task.filter(
           (task) =>
             task.priority === "High" &&
-            task.status !== "Done" &&
+            task.status !== "Completed" &&
             task.assigned_to_email === user.email
         );
 
